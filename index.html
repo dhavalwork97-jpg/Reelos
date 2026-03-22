@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REEL OS — Auto Video Picker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06060a;--surface:#0e0e14;--card:#12121a;--border:#1c1c28;
+  --accent:#FF3CAC;--a2:#784BA0;--a3:#2B86C5;
+  --yellow:#FFE566;--green:#00E5A0;--text:#EEEEF2;--muted:#55556a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 85% 5%,rgba(255,60,172,.08)0%,transparent 55%),
+             radial-gradient(ellipse 60% 60% at 5% 85%,rgba(43,134,197,.07)0%,transparent 55%);
+  pointer-events:none;z-index:0;}
+
+header{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 36px;border-bottom:1px solid var(--border);
+  background:rgba(6,6,10,.96);backdrop-filter:blur(20px);position:relative;z-index:10;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:6px;}
+.logo em{color:var(--accent);font-style:normal;}
+.logo-sub{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+
+.server-badge{display:flex;align-items:center;gap:8px;
+  border-radius:100px;padding:7px 16px;border:1px solid var(--border);
+  font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);}
+.server-badge.ok{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.2);color:var(--green);}
+.server-badge.err{background:rgba(255,60,172,.08);border-color:rgba(255,60,172,.2);color:#ff6b8a;}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.shell{display:grid;grid-template-columns:1fr 430px;min-height:calc(100vh - 65px);position:relative;z-index:1;}
+
+.lp{padding:28px 36px;border-right:1px solid var(--border);overflow-y:auto;}
+
+.slabel{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;
+  letter-spacing:3px;color:var(--muted);margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ERROR BANNER */
+.err-banner{display:none;background:rgba(255,60,172,.08);border:1px solid rgba(255,60,172,.25);
+  border-radius:10px;padding:14px 16px;margin-bottom:20px;
+  font-size:12px;color:#ff8aaa;line-height:1.6;}
+.err-banner.show{display:block;}
+.err-banner b{color:var(--accent);display:block;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;}
+
+.topics{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:24px;}
+.tp{background:var(--card);border:1px solid var(--border);border-radius:9px;
+  padding:11px 6px;text-align:center;cursor:pointer;transition:all .18s;}
+.tp:hover{border-color:#2a2a3a;}
+.tp.on{background:rgba(255,60,172,.1);border-color:var(--accent);}
+.tp i{font-size:20px;display:block;margin-bottom:5px;font-style:normal;}
+.tp s{font-size:8px;text-transform:uppercase;letter-spacing:1px;
+  font-family:'Space Mono',monospace;color:var(--muted);text-decoration:none;}
+.tp.on s{color:var(--accent);}
+
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;}
+.fg label{display:block;font-family:'Space Mono',monospace;font-size:8px;
+  text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:5px;}
+.fg select,.fg input{width:100%;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:12px;padding:8px 11px;outline:none;
+  font-family:'DM Sans',sans-serif;transition:border-color .2s;}
+.fg select:focus,.fg input:focus{border-color:var(--accent);}
+
+.gbtn{width:100%;background:linear-gradient(135deg,var(--accent),var(--a2));
+  color:#fff;border:none;border-radius:11px;padding:15px;font-size:14px;
+  font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+  gap:10px;margin-bottom:26px;}
+.gbtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,60,172,.3);}
+.gbtn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.lwrap{display:none;padding:28px;text-align:center;}
+.lring{width:42px;height:42px;border:3px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ltxt{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);}
+.lstep{font-size:11px;color:var(--muted);margin-top:7px;transition:color .3s;}
+.lstep.act{color:var(--accent);} .lstep.ok{color:var(--green);}
+
+.sout{display:none;} .sout.show{display:block;}
+.sb{background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:9px;overflow:hidden;animation:fu .3s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.sbh{padding:9px 15px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;justify-content:space-between;}
+.sbb{padding:13px 15px;font-size:13px;line-height:1.85;color:var(--text);white-space:pre-wrap;}
+.h-b .sbh{color:#FF6B6B;background:rgba(255,107,107,.04);}
+.v-b .sbh{color:#4ECDC4;background:rgba(78,205,196,.04);}
+.vi-b .sbh{color:var(--yellow);background:rgba(255,229,102,.04);}
+.c-b .sbh{color:var(--accent);background:rgba(255,60,172,.04);}
+.ca-b .sbh{color:var(--a3);background:rgba(43,134,197,.04);}
+.cpb{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);padding:3px 9px;font-size:9px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s;}
+.cpb:hover{color:var(--text);border-color:#333;}
+.cp-all{width:100%;background:none;border:1px solid var(--border);border-radius:9px;color:var(--muted);padding:11px;font-size:11px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s;margin-top:4px;}
+.cp-all:hover{color:var(--text);border-color:#333;}
+
+.rp{background:var(--surface);overflow-y:auto;display:flex;flex-direction:column;}
+.rph{padding:16px 18px 13px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:5;display:flex;align-items:center;justify-content:space-between;}
+.rph-t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+.rph-s{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
+
+.vwall{padding:12px;flex:1;}
+.vempty{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px;color:var(--muted);}
+.vempty-ico{font-size:50px;opacity:.12;margin-bottom:14px;}
+.vempty-t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;opacity:.18;color:var(--text);margin-bottom:7px;}
+.vempty-s{font-size:11px;line-height:1.7;opacity:.45;}
+
+.scene-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;animation:fu .35s ease;transition:border-color .2s;}
+.scene-card:hover{border-color:rgba(255,60,172,.3);}
+.scene-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);}
+.scene-num{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;}
+.scene-st{font-size:11px;font-family:'Space Mono',monospace;color:var(--muted);}
+.scene-st.ok{color:var(--green);}
+
+.vid-area{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;cursor:pointer;}
+.vid-area video{width:100%;height:100%;object-fit:cover;display:block;}
+.vid-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5)0%,transparent 50%);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.vid-area:hover .vid-ov{opacity:1;}
+.play-ic{width:46px;height:46px;background:rgba(0,0,0,.45);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;}
+.vid-area:hover .play-ic{background:rgba(255,60,172,.5);transform:scale(1.08);}
+
+.swap-lbl{padding:7px 14px 3px;font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);}
+.swap-bar{display:flex;gap:6px;padding:0 14px 10px;overflow-x:auto;}
+.sw-t{width:56px;height:38px;border-radius:5px;object-fit:cover;border:2px solid transparent;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.sw-t:hover,.sw-t.sel{border-color:var(--accent);}
+
+.vid-info{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.vid-meta{flex:1;min-width:0;}
+.vid-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vid-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;}
+.vid-acts{display:flex;gap:6px;flex-shrink:0;}
+.vbtn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:9px;cursor:pointer;color:var(--muted);font-family:'Space Mono',monospace;transition:all .2s;text-decoration:none;display:inline-block;}
+.vbtn:hover{color:var(--text);border-color:#333;}
+.vbtn.hi{background:rgba(255,60,172,.1);border-color:rgba(255,60,172,.3);color:var(--accent);}
+.vbtn.hi:hover{background:rgba(255,60,172,.2);}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr;}
+  .r3{grid-template-columns:1fr 1fr;}
+  header,.lp{padding:14px 18px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">REEL<em>OS</em></div>
+    <div class="logo-sub">AI Script × Auto Video Picker</div>
+  </div>
+  <div class="server-badge" id="badge"><div class="dot"></div><span id="badgeTxt">Checking…</span></div>
+</header>
+
+<div class="shell">
+  <div class="lp">
+
+    <!-- ERROR BANNER -->
+    <div class="err-banner" id="errBanner">
+      <b>⚠️ Error</b>
+      <span id="errMsg"></span>
+    </div>
+
+    <div class="slabel">Today's Topic</div>
+    <div class="topics">
+      <div class="tp on" onclick="pick(this,'Urban Life','🌆','city street urban neon night')"><i>🌆</i><s>Urban</s></div>
+      <div class="tp" onclick="pick(this,'Fashion','👗','fashion model style walk outfit')"><i>👗</i><s>Fashion</s></div>
+      <div class="tp" onclick="pick(this,'Music','🎵','music concert dj crowd festival')"><i>🎵</i><s>Music</s></div>
+      <div class="tp" onclick="pick(this,'Nightlife','🌙','nightlife club neon bar party')"><i>🌙</i><s>Night</s></div>
+      <div class="tp" onclick="pick(this,'Aesthetic','🎨','aesthetic cinematic minimal mood')"><i>🎨</i><s>Aesthetic</s></div>
+      <div class="tp" onclick="pick(this,'Street Art','🖼','graffiti mural street art color')"><i>🖼</i><s>Street Art</s></div>
+      <div class="tp" onclick="pick(this,'Architecture','🏙','architecture building skyline city')"><i>🏙</i><s>Arch.</s></div>
+      <div class="tp" onclick="pick(this,'Subculture','🎭','subculture youth skate alternative')"><i>🎭</i><s>Culture</s></div>
+      <div class="tp" onclick="pick(this,'Travel','✈️','travel city rooftop explore adventure')"><i>✈️</i><s>Travel</s></div>
+      <div class="tp" onclick="pick(this,'Food & Culture','🍜','street food market culture dining')"><i>🍜</i><s>Food</s></div>
+    </div>
+
+    <div class="slabel">Settings</div>
+    <div class="r3">
+      <div class="fg"><label>Platform</label>
+        <select id="plat"><option>Instagram Reels</option><option>TikTok</option><option>YouTube Shorts</option></select>
+      </div>
+      <div class="fg"><label>Duration</label>
+        <select id="dur"><option>15–30 sec</option><option>30–60 sec</option><option>60–90 sec</option></select>
+      </div>
+      <div class="fg"><label>Vibe</label>
+        <select id="vibe">
+          <option>Cinematic & moody</option><option>Fast cuts & energy</option>
+          <option>POV / Talking head</option><option>Voiceover + B-roll</option><option>Day in the life</option>
+        </select>
+      </div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>Your Niche</label><input type="text" id="niche" value="Urban Fashion"></div>
+      <div class="fg"><label>City / Style Keyword</label><input type="text" id="extra" placeholder="e.g. London, dark, vintage"></div>
+    </div>
+
+    <button class="gbtn" id="gbtn" onclick="generate()"><span>⚡</span> Generate Script + Auto-Pick Videos</button>
+
+    <div class="lwrap" id="lwrap">
+      <div class="lring"></div>
+      <div class="ltxt">Building your reel…</div>
+      <div id="s1" class="lstep">📝 Writing script…</div>
+      <div id="s2" class="lstep">🎬 Analysing scenes…</div>
+      <div id="s3" class="lstep">🔍 Searching Pexels for best clips…</div>
+      <div id="s4" class="lstep">✅ Auto-selecting & loading videos…</div>
+    </div>
+
+    <div class="sout" id="sout">
+      <div class="slabel" style="margin-bottom:10px;">Generated Script</div>
+      <div class="sb h-b"><div class="sbh">🎣 Hook (0–3 sec)<button class="cpb" onclick="cp('hT',this)">copy</button></div><div class="sbb" id="hT"></div></div>
+      <div class="sb v-b"><div class="sbh">📦 Value / Story<button class="cpb" onclick="cp('vT',this)">copy</button></div><div class="sbb" id="vT"></div></div>
+      <div class="sb vi-b"><div class="sbh">🎬 Visual Direction<button class="cpb" onclick="cp('viT',this)">copy</button></div><div class="sbb" id="viT"></div></div>
+      <div class="sb c-b"><div class="sbh">📢 Call to Action<button class="cpb" onclick="cp('cT',this)">copy</button></div><div class="sbb" id="cT"></div></div>
+      <div class="sb ca-b"><div class="sbh">📝 Caption + Hashtags<button class="cpb" onclick="cp('caT',this)">copy</button></div><div class="sbb" id="caT"></div></div>
+      <button class="cp-all" onclick="cpAll()">📋 Copy Full Script</button>
+    </div>
+  </div>
+
+  <div class="rp">
+    <div class="rph">
+      <div class="rph-t">AUTO VIDEOS</div>
+      <div class="rph-s" id="rphS">Waiting…</div>
+    </div>
+    <div class="vwall" id="vwall">
+      <div class="vempty">
+        <div class="vempty-ico">🎬</div>
+        <div class="vempty-t">AI Picks Videos</div>
+        <div class="vempty-s">Generate your script — Claude writes 4 scene queries, the server searches Pexels, and auto-selects the best clip for each scene. Preview inline, swap if needed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// All API calls go to our own server — no CORS issues
+const API = window.location.origin;
+
+let topic = { name:'Urban Life', icon:'🌆', kw:'city street urban neon night' };
+
+// ── Health check ───────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const r = await fetch(`${API}/health`);
+    const d = await r.json();
+    const badge = document.getElementById('badge');
+    const txt   = document.getElementById('badgeTxt');
+    if (d.status === 'ok' && d.pexels && d.claude) {
+      badge.className = 'server-badge ok';
+      txt.textContent = 'All systems online ✓';
+    } else {
+      badge.className = 'server-badge err';
+      const missing = [];
+      if (!d.pexels) missing.push('PEXELS_KEY');
+      if (!d.claude) missing.push('ANTHROPIC_KEY');
+      txt.textContent = `Missing: ${missing.join(', ')}`;
+    }
+  } catch {
+    document.getElementById('badge').className = 'server-badge err';
+    document.getElementById('badgeTxt').textContent = 'Server unreachable';
+  }
+}
+checkHealth();
+
+function pick(el, name, icon, kw) {
+  document.querySelectorAll('.tp').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  topic = { name, icon, kw };
+}
+
+function showErr(msg) {
+  document.getElementById('errMsg').textContent = msg;
+  document.getElementById('errBanner').className = 'err-banner show';
+}
+function hideErr() { document.getElementById('errBanner').className = 'err-banner'; }
+
+// ── Step animation ─────────────────────────────────────────
+let stmr;
+function startSteps() {
+  const ids = ['s1','s2','s3','s4'];
+  let i = 0;
+  ids.forEach(id => document.getElementById(id).className = 'lstep');
+  stmr = setInterval(() => {
+    if (i > 0) document.getElementById(ids[i-1]).className = 'lstep ok';
+    if (i < ids.length) { document.getElementById(ids[i]).className = 'lstep act'; i++; }
+    else clearInterval(stmr);
+  }, 1100);
+}
+
+// ── Claude via server proxy ────────────────────────────────
+async function claude(prompt) {
+  const r = await fetch(`${API}/api/claude`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: 'You are a viral short-form video scriptwriter. Respond ONLY with valid JSON. No markdown, no backticks, no text outside the JSON.',
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  const raw = (d.content?.[0]?.text || '{}').replace(/```json|```/g,'').trim();
+  return JSON.parse(raw);
+}
+
+// ── Pexels via server proxy ────────────────────────────────
+async function searchVideos(query, n = 6) {
+  const r = await fetch(`${API}/api/videos?q=${encodeURIComponent(query)}&n=${n}`);
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return d.videos || [];
+}
+
+// ── Score & pick best clip ─────────────────────────────────
+function scoreVid(v) {
+  let s = 0;
+  if (v.duration >= 5 && v.duration <= 25) s += 3;
+  else if (v.duration > 25 && v.duration <= 40) s += 1;
+  if (v.h > v.w) s += 2;
+  if (v.duration < 3) s -= 3;
+  return s;
+}
+function bestVid(videos) {
+  if (!videos.length) return null;
+  return [...videos].sort((a,b) => scoreVid(b) - scoreVid(a))[0];
+}
+
+// ── MAIN GENERATE ──────────────────────────────────────────
+async function generate() {
+  hideErr();
+  const niche = document.getElementById('niche').value || 'Urban Fashion';
+  const plat  = document.getElementById('plat').value;
+  const dur   = document.getElementById('dur').value;
+  const vibe  = document.getElementById('vibe').value;
+  const extra = document.getElementById('extra').value;
+
+  document.getElementById('gbtn').disabled = true;
+  document.getElementById('lwrap').style.display = 'block';
+  document.getElementById('sout').className = 'sout';
+  document.getElementById('vwall').innerHTML = '';
+  document.getElementById('rphS').textContent = 'Generating…';
+  startSteps();
+
+  try {
+    // 1. Script from Claude (via server)
+    const script = await claude(`
+Write a short-form video script for a ${niche} creator.
+Topic: ${topic.name}
+Platform: ${plat}
+Duration: ${dur}
+Vibe: ${vibe}
+Keywords: ${topic.kw}${extra ? ', '+extra : ''}
+
+Return ONLY valid JSON:
+{
+  "hook":    "scroll-stopping opening line, 0-3 sec",
+  "value":   "main content beats with timing cues",
+  "visual":  "shot-by-shot direction labeled SCENE 1 / SCENE 2 / SCENE 3 / SCENE 4",
+  "cta":     "final call to action",
+  "caption": "ready-to-post caption with 7 hashtags",
+  "scenes": [
+    {"label":"Hook Shot",   "query":"3-5 word Pexels video search"},
+    {"label":"Story Build", "query":"3-5 word Pexels video search"},
+    {"label":"Peak Moment", "query":"3-5 word Pexels video search"},
+    {"label":"CTA Close",   "query":"3-5 word Pexels video search"}
+  ]
+}
+Scene queries must be specific and visual. Based on: ${topic.kw}${extra?' '+extra:''}`);
+
+    // Show script
+    document.getElementById('hT').textContent  = script.hook    || '';
+    document.getElementById('vT').textContent  = script.value   || '';
+    document.getElementById('viT').textContent = script.visual  || '';
+    document.getElementById('cT').textContent  = script.cta     || '';
+    document.getElementById('caT').textContent = script.caption || '';
+    document.getElementById('sout').className  = 'sout show';
+
+    // 2. Build skeleton cards
+    const wall   = document.getElementById('vwall');
+    wall.innerHTML = '';
+    const colors = ['#FF3CAC','#4ECDC4','#FFE566','#7B61FF'];
+    const scenes = script.scenes || [];
+
+    const cards = scenes.map((sc, i) => {
+      const card = document.createElement('div');
+      card.className = 'scene-card';
+      card.innerHTML = `
+        <div class="scene-head">
+          <div class="scene-num" style="color:${colors[i%4]}">SCENE ${i+1} — ${sc.label}</div>
+          <div class="scene-st" id="st${i}">🔍 searching…</div>
+        </div>
+        <div style="aspect-ratio:16/9;background:#0a0a12;display:flex;align-items:center;justify-content:center;">
+          <div class="lring" style="width:28px;height:28px;border-width:2px;margin:0;"></div>
+        </div>`;
+      wall.appendChild(card);
+      return card;
+    });
+
+    // 3. Search Pexels in parallel (via server)
+    let found = 0;
+    await Promise.all(scenes.map(async (sc, i) => {
+      const q = extra ? `${sc.query} ${extra}` : sc.query;
+      let videos = [];
+      try { videos = await searchVideos(q, 6); } catch(e) { console.warn('Pexels err:', e.message); }
+
+      const picked = bestVid(videos);
+      const alts   = videos.filter(v => picked && v.id !== picked.id).slice(0,4);
+      const card   = cards[i];
+      const color  = colors[i%4];
+
+      if (!picked) {
+        card.innerHTML = `
+          <div class="scene-head">
+            <div class="scene-num" style="color:${color}">SCENE ${i+1} — ${sc.label}</div>
+            <div class="scene-st" style="color:#ff6b6b;">⚠️ no results</div>
+          </div>
+          <div style="padding:16px 14px;font-size:12px;color:var(--muted);">
+            No videos for <b style="color:var(--text)">"${q}"</b><br>
+            <a href="https://www.pexels.com/search/videos/${encodeURIComponent(q)}/"
+               target="_blank" style="color:var(--accent);text-decoration:none;font-size:11px;">
+              🔍 Browse Pexels manually →
+            </a>
+          </div>`;
+        return;
+      }
+
+      found++;
+      const portrait = picked.h > picked.w ? '9:16 ✓' : '16:9';
+      const altHTML  = alts.map((v,ai) => `
+        <img class="sw-t" src="${v.thumb}"
+             data-file="${v.file||''}" data-url="${v.url}"
+             data-dur="${v.duration}" data-ph="${v.photographer}"
+             onclick="swapVid(this,${i})" onerror="this.style.display='none'"
+             title="Alt ${ai+1} · ${v.duration}s">`).join('');
+
+      card.innerHTML = `
+        <div class="scene-head">
+          <div class="scene-num" style="color:${color}">SCENE ${i+1} — ${sc.label}</div>
+          <div class="scene-st ok">✅ auto-picked</div>
+        </div>
+        <div class="vid-area" onclick="togglePlay(${i})">
+          <video id="vid${i}" src="${picked.file||''}" poster="${picked.thumb}"
+                 loop muted playsinline preload="metadata"
+                 style="width:100%;height:100%;object-fit:cover;"></video>
+          <div class="vid-ov"><div class="play-ic" id="pic${i}">▶</div></div>
+        </div>
+        ${alts.length ? `<div class="swap-lbl">Swap clip</div><div class="swap-bar">${altHTML}</div>` : ''}
+        <div class="vid-info">
+          <div class="vid-meta">
+            <div class="vid-title">${sc.label}</div>
+            <div class="vid-sub" id="vsub${i}">
+              <span>⏱ ${picked.duration}s</span>
+              <span>📐 ${portrait}</span>
+              <span>📸 ${picked.photographer}</span>
+            </div>
+          </div>
+          <div class="vid-acts">
+            <a href="${picked.url}" target="_blank" id="vpx${i}" class="vbtn">Pexels ↗</a>
+            <a href="${picked.file||picked.url}" download id="vdl${i}" class="vbtn hi">↓ Download</a>
+          </div>
+        </div>`;
+    }));
+
+    document.getElementById('rphS').textContent = `${found}/${scenes.length} videos auto-picked`;
+
+  } catch(e) {
+    console.error(e);
+    showErr(e.message || 'Something went wrong. Check Render logs for details.');
+    document.getElementById('rphS').textContent = 'Error';
+  } finally {
+    clearInterval(stmr);
+    document.getElementById('gbtn').disabled = false;
+    document.getElementById('lwrap').style.display = 'none';
+  }
+}
+
+function togglePlay(i) {
+  const v = document.getElementById('vid'+i);
+  const p = document.getElementById('pic'+i);
+  if (!v) return;
+  if (v.paused) { v.play(); if(p) p.textContent='⏸'; }
+  else          { v.pause(); if(p) p.textContent='▶'; }
+}
+
+function swapVid(thumb, i) {
+  thumb.closest('.swap-bar').querySelectorAll('.sw-t').forEach(t => t.classList.remove('sel'));
+  thumb.classList.add('sel');
+  const v = document.getElementById('vid'+i);
+  if (!v || !thumb.dataset.file) return;
+  const playing = !v.paused;
+  v.src = thumb.dataset.file; v.load();
+  if (playing) v.play();
+  const sub = document.getElementById('vsub'+i);
+  if (sub) sub.innerHTML = `<span>⏱ ${thumb.dataset.dur}s</span><span>📸 ${thumb.dataset.ph}</span>`;
+  const dl = document.getElementById('vdl'+i); if(dl) dl.href = thumb.dataset.file;
+  const px = document.getElementById('vpx'+i); if(px) px.href = thumb.dataset.url||'#';
+}
+
+function cp(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent);
+  btn.textContent='done!'; setTimeout(()=>btn.textContent='copy',1200);
+}
+function cpAll() {
+  const ids=['hT','vT','viT','cT','caT'];
+  const lbls=['🎣 HOOK','📦 VALUE','🎬 VISUAL DIRECTION','📢 CTA','📝 CAPTION'];
+  navigator.clipboard.writeText(ids.map((id,i)=>lbls[i]+'\n'+document.getElementById(id).textContent).join('\n\n---\n\n'));
+  const b=document.querySelector('.cp-all');
+  b.textContent='✅ Copied!'; setTimeout(()=>b.textContent='📋 Copy Full Script',1600);
+}
+</script>
+</body>
+</html>

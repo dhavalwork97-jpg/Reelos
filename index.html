@@ -308,16 +308,28 @@ async function claude(prompt) {
     })
   });
   const d = await r.json();
-  if (d.error) throw new Error(d.error);
+  console.log('Claude response:', JSON.stringify(d).slice(0, 300));
+  // Extract error string from any shape of error response
+  if (d.error) {
+    const msg = typeof d.error === 'string' ? d.error
+      : d.error.message || d.error.type || JSON.stringify(d.error);
+    throw new Error('Claude: ' + msg);
+  }
+  if (!r.ok) throw new Error(`Claude HTTP ${r.status}: ${JSON.stringify(d).slice(0,200)}`);
   const raw = (d.content?.[0]?.text || '{}').replace(/```json|```/g,'').trim();
-  return JSON.parse(raw);
+  try { return JSON.parse(raw); }
+  catch(e) { throw new Error('JSON parse failed. Claude returned: ' + raw.slice(0,200)); }
 }
 
 // ── Pexels via server proxy ────────────────────────────────
 async function searchVideos(query, n = 6) {
   const r = await fetch(`${API}/api/videos?q=${encodeURIComponent(query)}&n=${n}`);
   const d = await r.json();
-  if (d.error) throw new Error(d.error);
+  console.log('Pexels response for', query, ':', JSON.stringify(d).slice(0,200));
+  if (d.error) {
+    const msg = typeof d.error === 'string' ? d.error : JSON.stringify(d.error);
+    throw new Error('Pexels: ' + msg);
+  }
   return d.videos || [];
 }
 
@@ -474,8 +486,9 @@ Scene queries must be specific and visual. Based on: ${topic.kw}${extra?' '+extr
     document.getElementById('rphS').textContent = `${found}/${scenes.length} videos auto-picked`;
 
   } catch(e) {
-    console.error(e);
-    showErr(e.message || 'Something went wrong. Check Render logs for details.');
+    console.error('Full error:', e);
+    const msg = e.message || String(e) || 'Unknown error — open browser console (F12) for details.';
+    showErr(msg);
     document.getElementById('rphS').textContent = 'Error';
   } finally {
     clearInterval(stmr);

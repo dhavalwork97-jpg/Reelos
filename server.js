@@ -85,18 +85,26 @@ http.createServer(async (req, res) => {
 
   // ── POST /api/claude — proxy to Anthropic ───────────────
   if (pathname === '/api/claude' && req.method === 'POST') {
-    if (!ANTHROPIC_KEY) { json(500, { error: 'ANTHROPIC_KEY not set in Render environment variables.' }); return; }
+    if (!ANTHROPIC_KEY) { json(500, { error: 'ANTHROPIC_KEY not set in Render environment variables. Go to Render → your service → Environment and add it.' }); return; }
     try {
       const body   = JSON.parse(await readBody(req));
+      console.log('[Claude] Sending request, model:', body.model);
       const result = await httpsPost(
         'api.anthropic.com',
         '/v1/messages',
         { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
         body
       );
+      console.log('[Claude] Response status:', result.status);
+      if (result.status !== 200) {
+        console.error('[Claude] Error body:', JSON.stringify(result.body).slice(0, 500));
+      }
       res.writeHead(result.status, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(result.body));
-    } catch(e) { json(500, { error: e.message }); }
+    } catch(e) {
+      console.error('[Claude] Exception:', e.message);
+      json(500, { error: e.message });
+    }
     return;
   }
 
@@ -126,6 +134,19 @@ http.createServer(async (req, res) => {
   // ── GET /health ─────────────────────────────────────────
   if (pathname === '/health') {
     json(200, { status: 'ok', pexels: !!PEXELS_KEY, claude: !!ANTHROPIC_KEY });
+    return;
+  }
+
+  // ── GET /debug — see what keys are loaded ───────────────
+  if (pathname === '/debug') {
+    json(200, {
+      pexels_key_set:    !!PEXELS_KEY,
+      pexels_key_prefix: PEXELS_KEY  ? PEXELS_KEY.slice(0,8)+'...'  : 'NOT SET',
+      claude_key_set:    !!ANTHROPIC_KEY,
+      claude_key_prefix: ANTHROPIC_KEY ? ANTHROPIC_KEY.slice(0,8)+'...' : 'NOT SET',
+      node_version:      process.version,
+      port:              PORT,
+    });
     return;
   }
 

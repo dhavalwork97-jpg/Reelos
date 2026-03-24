@@ -1,12 +1,12 @@
-// REEL OS — Server
-// AI provider is selected by the AI_PROVIDER env variable:
-//   AI_PROVIDER=groq    → uses Groq (free, default)
-//   AI_PROVIDER=claude  → uses Anthropic Claude (requires credits)
+// REEL OS — Server v3
+// Fresh content engine: multi-source videos, query variation, trending, history
 //
 // Render env vars:
-//   PEXELS_KEY      — always required
-//   GROQ_KEY        — required when AI_PROVIDER=groq  (free at console.groq.com)
-//   ANTHROPIC_KEY   — required when AI_PROVIDER=claude
+//   PEXELS_KEY       — required (pexels.com/api)
+//   PIXABAY_KEY      — optional (pixabay.com/api)
+//   GROQ_KEY         — required when AI_PROVIDER=groq (default, free)
+//   ANTHROPIC_KEY    — required when AI_PROVIDER=claude
+//   AI_PROVIDER      — 'groq' (default) or 'claude'
 
 const http  = require('http');
 const https = require('https');
@@ -16,12 +16,47 @@ const url   = require('url');
 
 const PORT          = process.env.PORT          || 3000;
 const PEXELS_KEY    = process.env.PEXELS_KEY    || '';
-const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY || '';
+const PIXABAY_KEY   = process.env.PIXABAY_KEY   || '';
 const GROQ_KEY      = process.env.GROQ_KEY      || '';
-// Default to groq. Switch to 'claude' in Render env once you add Anthropic credits.
+const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY || '';
 const AI_PROVIDER   = (process.env.AI_PROVIDER  || 'groq').toLowerCase();
 
-// ── HTTPS POST ─────────────────────────────────────────────
+// ── History store (in-memory, resets on redeploy) ──────────
+// For persistent history across restarts, use a file or DB
+const history = {
+  scripts:  [],   // last 30 generated scripts (topic+hook combinations)
+  queries:  {},   // last used page offsets per query
+  maxSize:  30,
+};
+
+function addToHistory(topic, hook, queries) {
+  history.scripts.unshift({ topic, hook, queries, ts: Date.now() });
+  if (history.scripts.length > history.maxSize) history.scripts.pop();
+}
+
+function getRecentHooks(topic) {
+  return history.scripts
+    .filter(s => s.topic === topic)
+    .slice(0, 5)
+    .map(s => s.hook);
+}
+
+function getRecentQueries(topic) {
+  return history.scripts
+    .filter(s => s.topic === topic)
+    .slice(0, 3)
+    .flatMap(s => s.queries || []);
+}
+
+// ── Random page offset per query (never same results) ──────
+function getPageOffset(query) {
+  // Random page 1-5, biased toward freshness
+  const page = Math.floor(Math.random() * 5) + 1;
+  history.queries[query] = page;
+  return page;
+}
+
+// ── HTTPS helpers ──────────────────────────────────────────
 function httpsPost(hostname, reqPath, headers, body) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(body);
@@ -43,7 +78,6 @@ function httpsPost(hostname, reqPath, headers, body) {
   });
 }
 
-// ── HTTPS GET ──────────────────────────────────────────────
 function httpsGet(hostname, reqPath, headers) {
   return new Promise((resolve, reject) => {
     https.get({ hostname, path: reqPath, headers }, res => {
@@ -51,76 +85,134 @@ function httpsGet(hostname, reqPath, headers) {
       res.on('data', c => raw += c);
       res.on('end', () => {
         try { resolve(JSON.parse(raw)); }
-        catch(e) { reject(new Error('Parse error')); }
+        catch(e) { reject(new Error('Parse error: ' + raw.slice(0,100))); }
       });
     }).on('error', reject);
   });
 }
 
-// ── Read POST body ─────────────────────────────────────────
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let data = '';
-    req.on('data', c => { data += c; if (data.length > 1e6) reject(new Error('Too large')); });
+    req.on('data', c => { data += c; if (data.length > 2e6) reject(new Error('Too large')); });
     req.on('end', () => resolve(data));
     req.on('error', reject);
   });
 }
 
-// ── AI: Groq ──────────────────────────────────────────────
+// ── AI providers ───────────────────────────────────────────
 async function callGroq(messages, system, maxTokens) {
-  if (!GROQ_KEY) throw new Error('GROQ_KEY not set in Render environment variables. Get a free key at console.groq.com');
-  const body = {
-    model: 'llama-3.3-70b-versatile',
-    max_tokens: maxTokens || 1000,
-    messages: [
-      { role: 'system', content: system },
-      ...messages
-    ],
-    temperature: 0.7,
-  };
-  console.log('[Groq] Sending request...');
+  if (!GROQ_KEY) throw new Error('GROQ_KEY not set. Get a free key at console.groq.com');
   const result = await httpsPost(
-    'api.groq.com',
-    '/openai/v1/chat/completions',
+    'api.groq.com', '/openai/v1/chat/completions',
     { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
-    body
+    { model: 'llama-3.3-70b-versatile', max_tokens: maxTokens || 1500,
+      temperature: 0.85, messages: [{ role: 'system', content: system }, ...messages] }
   );
-  console.log('[Groq] Status:', result.status);
   if (result.status !== 200) {
-    const errMsg = result.body?.error?.message || JSON.stringify(result.body).slice(0, 300);
-    throw new Error('Groq error: ' + errMsg);
+    throw new Error('Groq: ' + (result.body?.error?.message || JSON.stringify(result.body).slice(0,200)));
   }
-  // Return in Anthropic-compatible shape so frontend works with both
-  const text = result.body?.choices?.[0]?.message?.content || '{}';
-  return { content: [{ type: 'text', text }] };
+  return { content: [{ type: 'text', text: result.body?.choices?.[0]?.message?.content || '{}' }] };
 }
 
-// ── AI: Claude ────────────────────────────────────────────
 async function callClaude(messages, system, maxTokens) {
-  if (!ANTHROPIC_KEY) throw new Error('ANTHROPIC_KEY not set. Add it in Render → Environment, then set AI_PROVIDER=claude');
-  const body = { model: 'claude-sonnet-4-5', max_tokens: maxTokens || 1000, system, messages };
-  console.log('[Claude] Sending request...');
+  if (!ANTHROPIC_KEY) throw new Error('ANTHROPIC_KEY not set or no credits. Check console.anthropic.com');
   const result = await httpsPost(
-    'api.anthropic.com',
-    '/v1/messages',
+    'api.anthropic.com', '/v1/messages',
     { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
-    body
+    { model: 'claude-sonnet-4-5', max_tokens: maxTokens || 1500, system, messages }
   );
-  console.log('[Claude] Status:', result.status);
   if (result.status !== 200) {
-    const errMsg = result.body?.error?.message || JSON.stringify(result.body).slice(0, 300);
-    throw new Error('Claude error: ' + errMsg);
+    throw new Error('Claude: ' + (result.body?.error?.message || JSON.stringify(result.body).slice(0,200)));
   }
   return result.body;
 }
 
-// ── Route AI to active provider ────────────────────────────
 async function callAI(messages, system, maxTokens) {
-  if (AI_PROVIDER === 'claude') {
-    return callClaude(messages, system, maxTokens);
+  return AI_PROVIDER === 'claude'
+    ? callClaude(messages, system, maxTokens)
+    : callGroq(messages, system, maxTokens);
+}
+
+// ── Video sources ──────────────────────────────────────────
+
+// Pexels — random page offset for fresh results
+async function searchPexels(query, n) {
+  if (!PEXELS_KEY) return [];
+  const page = getPageOffset(query);
+  const qs   = new URLSearchParams({ query, per_page: n, size: 'medium', page });
+  try {
+    const data = await httpsGet('api.pexels.com', `/videos/search?${qs}`, { Authorization: PEXELS_KEY });
+    return (data.videos || []).map(v => ({
+      id: 'px_'+v.id, source: 'Pexels',
+      url:  v.url, duration: v.duration, thumb: v.image,
+      file: v.video_files?.find(f => f.quality==='sd' && f.width<=1280)?.link || v.video_files?.[0]?.link,
+      photographer: v.user?.name || 'Pexels',
+      w: v.width, h: v.height,
+    }));
+  } catch(e) { console.warn('[Pexels]', e.message); return []; }
+}
+
+// Pixabay — free, no attribution required
+async function searchPixabay(query, n) {
+  if (!PIXABAY_KEY) return [];
+  const qs = new URLSearchParams({
+    key: PIXABAY_KEY, q: query, video_type: 'film',
+    per_page: n, page: Math.floor(Math.random()*4)+1,
+  });
+  try {
+    const data = await httpsGet('pixabay.com', `/api/videos/?${qs}`, {});
+    return (data.hits || []).map(v => ({
+      id: 'pb_'+v.id, source: 'Pixabay',
+      url:  `https://pixabay.com/videos/id-${v.id}/`,
+      duration: v.duration,
+      thumb: v.videos?.medium?.thumbnail || v.videos?.small?.thumbnail,
+      file:  v.videos?.medium?.url       || v.videos?.small?.url,
+      photographer: v.user || 'Pixabay',
+      w: v.videos?.medium?.width  || 1280,
+      h: v.videos?.medium?.height || 720,
+    }));
+  } catch(e) { console.warn('[Pixabay]', e.message); return []; }
+}
+
+// Coverr — free stock video API (no key needed)
+async function searchCoverr(query, n) {
+  try {
+    const qs   = new URLSearchParams({ q: query, per_page: n });
+    const data = await httpsGet('api.coverr.co', `/videos?${qs}`, { 'coverr-token': 'coverr-public' });
+    return ((data.hits || data.items || [])).slice(0, n).map(v => ({
+      id: 'co_'+(v.id||v.slug), source: 'Coverr',
+      url:   v.url  || `https://coverr.co/videos/${v.slug}`,
+      duration: v.duration || 10,
+      thumb: v.preview_image_url || v.thumbnail,
+      file:  v.mp4_url || (v.urls && (v.urls.mp4_sd || v.urls.mp4)),
+      photographer: 'Coverr',
+      w: 1280, h: 720,
+    }));
+  } catch(e) { console.warn('[Coverr]', e.message); return []; }
+}
+
+// Multi-source: search all in parallel, merge & deduplicate
+async function searchAllSources(query, n) {
+  const [pexels, pixabay, coverr] = await Promise.all([
+    searchPexels(query, n),
+    searchPixabay(query, Math.ceil(n/2)),
+    searchCoverr(query, Math.ceil(n/2)),
+  ]);
+  // Interleave sources for variety
+  const merged = [];
+  const maxLen = Math.max(pexels.length, pixabay.length, coverr.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (pexels[i])  merged.push(pexels[i]);
+    if (pixabay[i]) merged.push(pixabay[i]);
+    if (coverr[i])  merged.push(coverr[i]);
   }
-  return callGroq(messages, system, maxTokens);
+  // Deduplicate by file URL
+  const seen = new Set();
+  return merged.filter(v => {
+    if (!v.file || seen.has(v.file)) return false;
+    seen.add(v.file); return true;
+  }).slice(0, n * 2); // return up to 2x results for scoring
 }
 
 // ── Static files ───────────────────────────────────────────
@@ -148,53 +240,63 @@ http.createServer(async (req, res) => {
     res.end(JSON.stringify(obj));
   };
 
-  // ── POST /api/ai — unified AI endpoint ────────────────
+  // ── POST /api/ai ───────────────────────────────────────
   if (pathname === '/api/ai' && req.method === 'POST') {
     try {
-      const body     = JSON.parse(await readBody(req));
-      const messages = body.messages || [];
-      const system   = body.system   || 'You are a helpful assistant.';
-      const maxTok   = body.max_tokens || 1000;
-      const result   = await callAI(messages, system, maxTok);
+      const body   = JSON.parse(await readBody(req));
+      const result = await callAI(body.messages || [], body.system || '', body.max_tokens || 1500);
       json(200, result);
     } catch(e) {
-      console.error('[AI] Error:', e.message);
+      console.error('[AI]', e.message);
       json(500, { error: e.message });
     }
     return;
   }
 
-  // ── GET /api/videos — Pexels proxy ────────────────────
+  // ── GET /api/videos — multi-source with random offset ─
   if (pathname === '/api/videos') {
-    if (!PEXELS_KEY) { json(500, { error: 'PEXELS_KEY not set in Render environment variables.' }); return; }
     const q = query.q || 'urban city';
     const n = Math.min(parseInt(query.n) || 6, 10);
     try {
-      const qs   = new URLSearchParams({ query: q, per_page: n, size: 'medium' });
-      const data = await httpsGet('api.pexels.com', `/videos/search?${qs}`, { Authorization: PEXELS_KEY });
-      const videos = (data.videos || []).map(v => ({
-        id:           v.id,
-        url:          v.url,
-        duration:     v.duration,
-        thumb:        v.image,
-        file:         v.video_files?.find(f => f.quality === 'sd' && f.width <= 1280)?.link
-                   || v.video_files?.[0]?.link,
-        photographer: v.user?.name || 'Pexels',
-        w: v.width, h: v.height,
-      }));
-      json(200, { videos });
+      const videos = await searchAllSources(q, n);
+      json(200, { videos, sources: [...new Set(videos.map(v => v.source))] });
     } catch(e) { json(500, { error: e.message }); }
+    return;
+  }
+
+  // ── GET /api/history ───────────────────────────────────
+  if (pathname === '/api/history') {
+    json(200, { count: history.scripts.length, recent: history.scripts.slice(0, 10) });
+    return;
+  }
+
+  // ── POST /api/history — save generated script ─────────
+  if (pathname === '/api/history' && req.method === 'POST') {
+    try {
+      const body = JSON.parse(await readBody(req));
+      addToHistory(body.topic, body.hook, body.queries);
+      json(200, { saved: true, total: history.scripts.length });
+    } catch(e) { json(500, { error: e.message }); }
+    return;
+  }
+
+  // ── GET /api/context — history context for AI ─────────
+  if (pathname === '/api/context') {
+    const topic = query.topic || '';
+    json(200, {
+      recentHooks:   getRecentHooks(topic),
+      recentQueries: getRecentQueries(topic),
+      totalGenerated: history.scripts.length,
+    });
     return;
   }
 
   // ── GET /health ────────────────────────────────────────
   if (pathname === '/health') {
     json(200, {
-      status:      'ok',
-      ai_provider: AI_PROVIDER,
-      groq:        !!GROQ_KEY,
-      claude:      !!ANTHROPIC_KEY,
-      pexels:      !!PEXELS_KEY,
+      status: 'ok', ai_provider: AI_PROVIDER,
+      groq: !!GROQ_KEY, claude: !!ANTHROPIC_KEY,
+      pexels: !!PEXELS_KEY, pixabay: !!PIXABAY_KEY,
     });
     return;
   }
@@ -202,29 +304,28 @@ http.createServer(async (req, res) => {
   // ── GET /debug ─────────────────────────────────────────
   if (pathname === '/debug') {
     json(200, {
-      ai_provider:        AI_PROVIDER,
-      pexels_key_set:     !!PEXELS_KEY,
-      pexels_key_prefix:  PEXELS_KEY     ? PEXELS_KEY.slice(0,8)+'...'     : 'NOT SET',
-      groq_key_set:       !!GROQ_KEY,
-      groq_key_prefix:    GROQ_KEY       ? GROQ_KEY.slice(0,8)+'...'       : 'NOT SET',
-      claude_key_set:     !!ANTHROPIC_KEY,
-      claude_key_prefix:  ANTHROPIC_KEY  ? ANTHROPIC_KEY.slice(0,8)+'...'  : 'NOT SET',
-      node_version:       process.version,
-      port:               PORT,
+      ai_provider:       AI_PROVIDER,
+      pexels_key_set:    !!PEXELS_KEY,
+      pixabay_key_set:   !!PIXABAY_KEY,
+      groq_key_set:      !!GROQ_KEY,
+      claude_key_set:    !!ANTHROPIC_KEY,
+      groq_prefix:       GROQ_KEY      ? GROQ_KEY.slice(0,8)+'...'      : 'NOT SET',
+      pexels_prefix:     PEXELS_KEY    ? PEXELS_KEY.slice(0,8)+'...'    : 'NOT SET',
+      history_count:     history.scripts.length,
+      node_version:      process.version,
+      port:              PORT,
     });
     return;
   }
 
-  // ── GET /test-ai — quick AI test ──────────────────────
+  // ── GET /test-ai ───────────────────────────────────────
   if (pathname === '/test-ai') {
     try {
       const result = await callAI(
-        [{ role: 'user', content: 'Reply with only the word OK and nothing else.' }],
-        'You are a test assistant. Reply with only OK.',
-        16
+        [{ role: 'user', content: 'Reply with only the word OK.' }],
+        'Reply with only OK.', 16
       );
-      const text = result?.content?.[0]?.text || '';
-      json(200, { provider: AI_PROVIDER, response: text, status: 'working' });
+      json(200, { provider: AI_PROVIDER, response: result?.content?.[0]?.text || '', status: 'working' });
     } catch(e) { json(500, { provider: AI_PROVIDER, error: e.message }); }
     return;
   }
@@ -233,15 +334,14 @@ http.createServer(async (req, res) => {
   const file = (pathname === '/' || pathname === '/index.html')
     ? path.join(__dirname, 'index.html')
     : path.join(__dirname, pathname.replace(/\.\./g, ''));
-
   if (!file.startsWith(__dirname)) { res.writeHead(403); res.end('Forbidden'); return; }
   serveStatic(res, file);
 
 }).listen(PORT, () => {
-  console.log(`\n  ✅  REEL OS on port ${PORT}`);
-  console.log(`  🤖  AI Provider : ${AI_PROVIDER.toUpperCase()}`);
-  console.log(`  🔑  Pexels      : ${PEXELS_KEY     ? 'loaded ✓' : 'NOT SET ⚠️'}`);
-  console.log(`  ⚡  Groq        : ${GROQ_KEY       ? 'loaded ✓' : 'NOT SET ⚠️'}`);
-  console.log(`  🧠  Claude      : ${ANTHROPIC_KEY  ? 'loaded ✓' : 'NOT SET (disabled)'}`)
-  console.log(`\n  To switch to Claude: set AI_PROVIDER=claude in Render env\n`);
+  console.log(`\n  ✅  REEL OS v3 on port ${PORT}`);
+  console.log(`  🤖  AI       : ${AI_PROVIDER.toUpperCase()}`);
+  console.log(`  🎬  Pexels   : ${PEXELS_KEY   ? 'loaded ✓' : 'NOT SET ⚠️'}`);
+  console.log(`  🎥  Pixabay  : ${PIXABAY_KEY  ? 'loaded ✓' : 'not set (optional)'}`);
+  console.log(`  ⚡  Groq     : ${GROQ_KEY     ? 'loaded ✓' : 'NOT SET ⚠️'}`);
+  console.log(`  🧠  Claude   : ${ANTHROPIC_KEY? 'loaded ✓' : 'disabled (add credits to enable)'}\n`);
 });

@@ -3,86 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REEL OS — Fresh Content Engine</title>
+<title>REEL OS — Cinematic Edit Engine</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#06060a;--surface:#0e0e14;--card:#12121a;--border:#1c1c28;
+  --bg:#040406;--surface:#080810;--card:#0d0d16;--border:#161624;
   --accent:#FF3CAC;--a2:#784BA0;--a3:#2B86C5;
-  --yellow:#FFE566;--green:#00E5A0;--text:#EEEEF2;--muted:#55556a;
+  --yellow:#FFE566;--green:#00E5A0;--red:#FF6B6B;
+  --text:#EEEEF2;--muted:#4a4a62;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse 70% 50% at 85% 5%,rgba(255,60,172,.08)0%,transparent 55%),
-             radial-gradient(ellipse 60% 60% at 5% 85%,rgba(43,134,197,.07)0%,transparent 55%);
+  background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(255,60,172,.06)0%,transparent 55%),
+             radial-gradient(ellipse 50% 60% at 5% 90%,rgba(43,134,197,.05)0%,transparent 55%);
   pointer-events:none;z-index:0;}
 
 /* HEADER */
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:14px 32px;border-bottom:1px solid var(--border);
-  background:rgba(6,6,10,.96);backdrop-filter:blur(20px);position:relative;z-index:10;flex-wrap:wrap;}
+  background:rgba(4,4,6,.97);backdrop-filter:blur(20px);position:relative;z-index:10;flex-wrap:wrap;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:6px;}
 .logo em{color:var(--accent);font-style:normal;}
 .logo-sub{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
-
-.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-
+.header-right{display:flex;align-items:center;gap:8px;}
 .badge{display:flex;align-items:center;gap:6px;border-radius:100px;padding:6px 14px;
   border:1px solid var(--border);font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);}
-.badge.ok{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.2);color:var(--green);}
-.badge.err{background:rgba(255,60,172,.08);border-color:rgba(255,60,172,.2);color:#ff6b8a;}
+.badge.ok{background:rgba(0,229,160,.07);border-color:rgba(0,229,160,.2);color:var(--green);}
+.badge.err{background:rgba(255,60,172,.07);border-color:rgba(255,60,172,.2);color:var(--red);}
 .dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
-/* DAILY TOPIC BANNER */
-.daily-banner{
-  background:linear-gradient(135deg,rgba(255,60,172,.07),rgba(43,134,197,.07));
-  border-bottom:1px solid var(--border);
-  padding:10px 32px;display:flex;align-items:center;gap:16px;
-  position:relative;z-index:9;flex-wrap:wrap;
-}
-.daily-label{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
-  letter-spacing:3px;color:var(--muted);}
-.daily-topic{display:flex;align-items:center;gap:8px;}
-.daily-icon{font-size:20px;}
-.daily-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent);}
-.daily-sub{font-size:11px;color:var(--muted);}
-.daily-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
-.gen-count{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);
-  background:var(--card);border:1px solid var(--border);border-radius:100px;padding:4px 10px;}
+/* AESTHETIC SELECTOR */
+.aesthetic-bar{padding:14px 32px;border-bottom:1px solid var(--border);
+  background:rgba(4,4,6,.9);position:relative;z-index:9;}
+.aesthetic-bar-label{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
+  letter-spacing:3px;color:var(--muted);margin-bottom:10px;}
+.aesthetic-row{display:flex;gap:8px;flex-wrap:wrap;}
+.aes{background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:8px 14px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:8px;}
+.aes:hover{border-color:#252535;}
+.aes.on{border-color:var(--accent);background:rgba(255,60,172,.07);}
+.aes-icon{font-size:16px;}
+.aes-name{font-size:11px;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.aes.on .aes-name{color:var(--accent);}
+.aes-desc{font-size:9px;color:var(--muted);margin-top:1px;display:none;}
 
 /* LAYOUT */
-.shell{display:grid;grid-template-columns:1fr 430px;min-height:calc(100vh - 95px);position:relative;z-index:1;}
+.shell{display:grid;grid-template-columns:1fr 460px;min-height:calc(100vh - 120px);position:relative;z-index:1;}
 .lp{padding:24px 32px;border-right:1px solid var(--border);overflow-y:auto;}
 
 .slabel{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;
-  letter-spacing:3px;color:var(--muted);margin-bottom:10px;
-  display:flex;align-items:center;gap:8px;}
+  letter-spacing:3px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .slabel::after{content:'';flex:1;height:1px;background:var(--border);}
 
 /* TOPICS */
-.topics{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:22px;}
+.topics{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:20px;}
 .tp{background:var(--card);border:1px solid var(--border);border-radius:9px;
   padding:10px 5px;text-align:center;cursor:pointer;transition:all .18s;position:relative;}
-.tp:hover{border-color:#2a2a3a;}
-.tp.on{background:rgba(255,60,172,.1);border-color:var(--accent);}
-.tp.today::after{content:'TODAY';position:absolute;top:-6px;right:4px;
-  font-family:'Space Mono',monospace;font-size:6px;letter-spacing:1px;
-  background:var(--yellow);color:#000;border-radius:3px;padding:1px 4px;}
+.tp:hover{border-color:#252535;}
+.tp.on{background:rgba(255,60,172,.08);border-color:var(--accent);}
+.tp.today::after{content:'TODAY';position:absolute;top:-6px;right:3px;
+  font-family:'Space Mono',monospace;font-size:6px;background:var(--yellow);
+  color:#000;border-radius:3px;padding:1px 4px;letter-spacing:1px;}
 .tp i{font-size:18px;display:block;margin-bottom:4px;font-style:normal;}
 .tp s{font-size:8px;text-transform:uppercase;letter-spacing:1px;
   font-family:'Space Mono',monospace;color:var(--muted);text-decoration:none;}
 .tp.on s{color:var(--accent);}
-
-/* HOOK STYLE PICKER */
-.hook-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
-.hook-chip{font-size:10px;background:var(--card);border:1px solid var(--border);
-  border-radius:100px;padding:5px 12px;cursor:pointer;transition:all .2s;
-  font-family:'Space Mono',monospace;color:var(--muted);}
-.hook-chip:hover{color:var(--text);border-color:#333;}
-.hook-chip.on{background:rgba(255,229,102,.1);border-color:var(--yellow);color:var(--yellow);}
-.hook-chip.auto{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.3);color:var(--green);}
 
 /* FORM */
 .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
@@ -94,115 +81,138 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
   font-family:'DM Sans',sans-serif;transition:border-color .2s;}
 .fg select:focus,.fg input:focus{border-color:var(--accent);}
 
-/* TRENDING TOGGLE */
-.trending-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;
-  background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 14px;}
-.toggle{width:36px;height:20px;background:#1a1a28;border-radius:100px;
-  position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
-.toggle.on{background:var(--accent);}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;
-  width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;}
-.toggle.on::after{transform:translateX(16px);}
-.trending-label{font-size:12px;color:var(--muted);}
-.trending-label b{color:var(--text);display:block;font-size:11px;}
-
 /* GEN BTN */
 .gbtn{width:100%;background:linear-gradient(135deg,var(--accent),var(--a2));
-  color:#fff;border:none;border-radius:11px;padding:15px;font-size:14px;
-  font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
-  transition:all .2s;display:flex;align-items:center;justify-content:center;
-  gap:10px;margin-bottom:24px;}
+  color:#fff;border:none;border-radius:11px;padding:15px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;}
 .gbtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,60,172,.3);}
 .gbtn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
 
 /* LOADING */
-.lwrap{display:none;padding:24px;text-align:center;}
-.lring{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);
+.lwrap{display:none;padding:22px;text-align:center;}
+.lring{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);
   border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ltxt{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);}
-.lstep{font-size:11px;color:var(--muted);margin-top:6px;transition:color .3s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.lstep.act{color:var(--accent);}
-.lstep.ok{color:var(--green);}
+.ltxt{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.lstep{font-size:11px;color:var(--muted);margin-top:6px;transition:color .3s;}
+.lstep.act{color:var(--accent);} .lstep.ok{color:var(--green);}
 
 /* SCRIPT BLOCKS */
 .sout{display:none;}.sout.show{display:block;}
 .sb{background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:8px;overflow:hidden;animation:fu .3s ease;}
 @keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.sbh{padding:9px 14px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;justify-content:space-between;}
+.sbh{padding:9px 14px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;
+  font-size:9px;text-transform:uppercase;letter-spacing:2px;
+  display:flex;align-items:center;justify-content:space-between;}
 .sbb{padding:12px 14px;font-size:13px;line-height:1.85;color:var(--text);white-space:pre-wrap;}
-.h-b .sbh{color:#FF6B6B;background:rgba(255,107,107,.04);}
-.v-b .sbh{color:#4ECDC4;background:rgba(78,205,196,.04);}
+.h-b  .sbh{color:var(--red);background:rgba(255,107,107,.04);}
+.v-b  .sbh{color:#4ECDC4;background:rgba(78,205,196,.04);}
 .vi-b .sbh{color:var(--yellow);background:rgba(255,229,102,.04);}
-.c-b .sbh{color:var(--accent);background:rgba(255,60,172,.04);}
+.c-b  .sbh{color:var(--accent);background:rgba(255,60,172,.04);}
 .ca-b .sbh{color:var(--a3);background:rgba(43,134,197,.04);}
-.hs-b .sbh{color:var(--green);background:rgba(0,229,160,.04);}
-.cpb{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);padding:3px 9px;font-size:9px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s;}
+.cpb{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);
+  padding:3px 9px;font-size:9px;cursor:pointer;font-family:'Space Mono',monospace;}
 .cpb:hover{color:var(--text);}
-.cp-all{width:100%;background:none;border:1px solid var(--border);border-radius:9px;color:var(--muted);padding:11px;font-size:11px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s;margin-top:4px;}
+.cp-all{width:100%;background:none;border:1px solid var(--border);border-radius:9px;
+  color:var(--muted);padding:11px;font-size:11px;cursor:pointer;
+  font-family:'Space Mono',monospace;margin-top:4px;}
 .cp-all:hover{color:var(--text);}
 
 /* ERROR */
 .err-banner{display:none;background:rgba(255,60,172,.07);border:1px solid rgba(255,60,172,.2);
   border-radius:9px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#ff8aaa;line-height:1.6;}
 .err-banner.show{display:block;}
-.err-banner b{color:var(--accent);display:block;margin-bottom:3px;font-family:'Space Mono',monospace;font-size:9px;}
+.err-banner b{color:var(--accent);display:block;margin-bottom:3px;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;}
 
 /* RIGHT PANEL */
 .rp{background:var(--surface);overflow-y:auto;display:flex;flex-direction:column;}
-.rph{padding:14px 16px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:5;}
-.rph-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.rph{padding:14px 16px 10px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--surface);z-index:5;}
+.rph-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .rph-t{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;}
 .rph-s{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
-
-/* SOURCE BADGES */
-.source-row{display:flex;gap:6px;flex-wrap:wrap;}
-.src-badge{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
-  letter-spacing:1px;border-radius:100px;padding:3px 9px;border:1px solid var(--border);color:var(--muted);}
-.src-badge.pexels{border-color:rgba(5,191,113,.3);color:#05bf71;}
-.src-badge.pixabay{border-color:rgba(255,229,102,.3);color:var(--yellow);}
-.src-badge.coverr{border-color:rgba(43,134,197,.3);color:var(--a3);}
+.progress-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a3));width:0%;transition:width .4s ease;}
 
 .vwall{padding:12px;flex:1;}
-.vempty{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px;color:var(--muted);}
-.vempty-ico{font-size:48px;opacity:.12;margin-bottom:12px;}
-.vempty-t{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;opacity:.18;color:var(--text);margin-bottom:6px;}
-.vempty-s{font-size:11px;line-height:1.7;opacity:.45;}
+.vempty{min-height:340px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:36px;color:var(--muted);}
+.vempty-ico{font-size:44px;opacity:.1;margin-bottom:12px;}
+.vempty-t{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
+  opacity:.15;color:var(--text);margin-bottom:8px;}
+.vempty-s{font-size:11px;line-height:1.8;opacity:.4;}
 
 /* SCENE CARDS */
-.scene-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;animation:fu .35s ease;transition:border-color .2s;}
-.scene-card:hover{border-color:rgba(255,60,172,.3);}
-.scene-head{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--border);}
-.scene-num{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;}
-.scene-right{display:flex;align-items:center;gap:8px;}
-.scene-src{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
-  letter-spacing:1px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);color:var(--muted);}
-.scene-src.Pexels{border-color:rgba(5,191,113,.3);color:#05bf71;}
-.scene-src.Pixabay{border-color:rgba(255,229,102,.3);color:var(--yellow);}
-.scene-src.Coverr{border-color:rgba(43,134,197,.3);color:var(--a3);}
-.scene-st{font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);}
-.scene-st.ok{color:var(--green);}
+.scene-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:16px;animation:fu .35s ease;transition:border-color .2s;}
+.scene-card:hover{border-color:rgba(255,60,172,.2);}
 
+/* SCENE HEADER */
+.sc-head{padding:10px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.sc-left{flex:1;}
+.sc-num{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;margin-bottom:3px;}
+.sc-world{font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;}
+.sc-vibe{font-size:11px;color:var(--muted);font-style:italic;line-height:1.4;}
+.sc-status{font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);white-space:nowrap;}
+.sc-status.ok{color:var(--green);}
+.sc-status.err{color:var(--red);}
+
+/* CINEMATIC META ROW */
+.cin-meta{display:flex;gap:5px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.cm-pill{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
+  letter-spacing:1px;padding:3px 8px;border-radius:100px;border:1px solid var(--border);color:var(--muted);}
+.cm-pill.color{border-color:rgba(255,229,102,.3);color:var(--yellow);}
+.cm-pill.light{border-color:rgba(43,134,197,.3);color:var(--a3);}
+.cm-pill.motion{border-color:rgba(255,60,172,.3);color:var(--accent);}
+.cm-pill.lens{border-color:rgba(0,229,160,.3);color:var(--green);}
+.cm-pill.dur{border-color:rgba(120,75,160,.3);color:#b388ff;}
+
+/* VIDEO */
 .vid-area{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;cursor:pointer;}
 .vid-area video{width:100%;height:100%;object-fit:cover;display:block;}
-.vid-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5)0%,transparent 50%);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.vid-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6)0%,transparent 45%);
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
 .vid-area:hover .vid-ov{opacity:1;}
-.play-ic{width:44px;height:44px;background:rgba(0,0,0,.45);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;}
-.vid-area:hover .play-ic{background:rgba(255,60,172,.5);transform:scale(1.08);}
+.play-ic{width:44px;height:44px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:15px;transition:all .2s;}
+.vid-area:hover .play-ic{background:rgba(255,60,172,.45);transform:scale(1.08);}
 
-.swap-lbl{padding:6px 13px 2px;font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);}
-.swap-bar{display:flex;gap:5px;padding:0 13px 9px;overflow-x:auto;}
-.sw-t{width:52px;height:35px;border-radius:5px;object-fit:cover;border:2px solid transparent;cursor:pointer;transition:all .2s;flex-shrink:0;}
+/* CAPCUT GUIDE */
+.cc-guide{padding:10px 14px;border-bottom:1px solid var(--border);
+  background:rgba(255,229,102,.03);font-size:11px;color:var(--muted);line-height:1.6;}
+.cc-guide b{color:var(--yellow);font-family:'Space Mono',monospace;font-size:9px;
+  letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;}
+
+/* SWAP */
+.swap-lbl{padding:6px 14px 2px;font-family:'Space Mono',monospace;font-size:8px;
+  text-transform:uppercase;letter-spacing:2px;color:var(--muted);}
+.swap-bar{display:flex;gap:5px;padding:0 14px 8px;overflow-x:auto;}
+.sw-t{width:52px;height:35px;border-radius:5px;object-fit:cover;
+  border:2px solid transparent;cursor:pointer;transition:all .2s;flex-shrink:0;}
 .sw-t:hover,.sw-t.sel{border-color:var(--accent);}
 
-.vid-info{padding:9px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+/* INFO ROW */
+.vid-info{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .vid-meta{flex:1;min-width:0;}
-.vid-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vid-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .vid-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;}
 .vid-acts{display:flex;gap:5px;flex-shrink:0;}
-.vbtn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:9px;cursor:pointer;color:var(--muted);font-family:'Space Mono',monospace;transition:all .2s;text-decoration:none;display:inline-block;}
+.vbtn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;
+  font-size:9px;cursor:pointer;color:var(--muted);font-family:'Space Mono',monospace;
+  transition:all .2s;text-decoration:none;display:inline-block;}
 .vbtn:hover{color:var(--text);border-color:#333;}
 .vbtn.hi{background:rgba(255,60,172,.1);border-color:rgba(255,60,172,.3);color:var(--accent);}
+
+/* SKELETON */
+.sc-skeleton{aspect-ratio:16/9;
+  background:linear-gradient(90deg,var(--card)25%,#111122 50%,var(--card)75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
 
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -211,8 +221,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 @media(max-width:900px){
   .shell{grid-template-columns:1fr;}
   .r3{grid-template-columns:1fr 1fr;}
-  header,.lp{padding:14px 18px;}
-  .daily-banner{padding:10px 18px;}
+  header,.lp,.aesthetic-bar{padding:14px 18px;}
 }
 </style>
 </head>
@@ -221,26 +230,41 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 <header>
   <div>
     <div class="logo">REEL<em>OS</em></div>
-    <div class="logo-sub">Fresh Content Engine v3</div>
+    <div class="logo-sub">Cinematic Edit Engine</div>
   </div>
   <div class="header-right">
     <div class="badge" id="badge"><div class="dot"></div><span id="badgeTxt">Checking…</span></div>
-    <div class="badge" id="histBadge">📚 <span id="histCount">0</span> generated</div>
   </div>
 </header>
 
-<!-- DAILY AUTO TOPIC BANNER -->
-<div class="daily-banner">
-  <div>
-    <div class="daily-label">Today's Auto-Topic</div>
-    <div class="daily-topic">
-      <span class="daily-icon" id="dailyIcon">🌆</span>
-      <span class="daily-name" id="dailyName">URBAN LIFE</span>
+<!-- AESTHETIC WORLD SELECTOR -->
+<div class="aesthetic-bar">
+  <div class="aesthetic-bar-label">Aesthetic World — each scene pulls clips from this visual universe</div>
+  <div class="aesthetic-row" id="aesRow">
+    <div class="aes on" onclick="selAes(this,'cyberpunk','🌆','dark neon rain reflections city night','neon rain reflections city night dark')">
+      <span class="aes-icon">🌆</span><div><div class="aes-name">Cyberpunk</div></div>
     </div>
-  </div>
-  <div class="daily-sub" id="dailySub">Changes automatically every day</div>
-  <div class="daily-right">
-    <div class="gen-count" id="genCountBadge">Today: 0 generated</div>
+    <div class="aes" onclick="selAes(this,'dark luxury','🖤','dark luxury moody slow motion cinematic','dark moody cinematic slow motion luxury')">
+      <span class="aes-icon">🖤</span><div><div class="aes-name">Dark Luxury</div></div>
+    </div>
+    <div class="aes" onclick="selAes(this,'film noir','🎞','film grain noir black white shadows smoke','film grain noir shadows smoke street')">
+      <span class="aes-icon">🎞</span><div><div class="aes-name">Film Noir</div></div>
+    </div>
+    <div class="aes" onclick="selAes(this,'golden hour','🌅','golden hour warm light slow motion cinematic','golden warm light bokeh slow motion')">
+      <span class="aes-icon">🌅</span><div><div class="aes-name">Golden Hour</div></div>
+    </div>
+    <div class="aes" onclick="selAes(this,'underground','🎵','underground dark club music bass crowd neon','underground dark club crowd energy bass')">
+      <span class="aes-icon">🎵</span><div><div class="aes-name">Underground</div></div>
+    </div>
+    <div class="aes" onclick="selAes(this,'street grit','🏙','gritty urban street raw handheld night','gritty street urban raw handheld')">
+      <span class="aes-icon">🏙</span><div><div class="aes-name">Street Grit</div></div>
+    </div>
+    <div class="aes" onclick="selAes(this,'minimal void','⬛','minimal dark void empty space architecture','minimal dark void space architecture')">
+      <span class="aes-icon">⬛</span><div><div class="aes-name">Minimal Void</div></div>
+    </div>
+    <div class="aes" onclick="selAes(this,'retro wave','📼','retro 80s synthwave neon purple pink','retro synthwave neon purple pink 80s')">
+      <span class="aes-icon">📼</span><div><div class="aes-name">Retro Wave</div></div>
+    </div>
   </div>
 </div>
 
@@ -249,8 +273,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 
     <div class="err-banner" id="errBanner"><b>⚠️ Error</b><span id="errMsg"></span></div>
 
-    <!-- TOPIC PICKER -->
-    <div class="slabel">Pick Topic</div>
+    <div class="slabel">Topic</div>
     <div class="topics" id="topicGrid">
       <div class="tp" onclick="pick(this,'Urban Life','🌆','city street urban neon night')"><i>🌆</i><s>Urban</s></div>
       <div class="tp" onclick="pick(this,'Fashion','👗','fashion model style walk outfit')"><i>👗</i><s>Fashion</s></div>
@@ -264,31 +287,6 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
       <div class="tp" onclick="pick(this,'Food & Culture','🍜','street food market culture dining')"><i>🍜</i><s>Food</s></div>
     </div>
 
-    <!-- HOOK STYLE -->
-    <div class="slabel">Hook Style <span style="color:var(--green);margin-left:4px;font-size:8px;">(rotates automatically)</span></div>
-    <div class="hook-row" id="hookRow">
-      <div class="hook-chip auto on" onclick="selectHook(this,'auto')">🎲 Auto-rotate</div>
-      <div class="hook-chip" onclick="selectHook(this,'question')">❓ Question</div>
-      <div class="hook-chip" onclick="selectHook(this,'stat')">📊 Bold Stat</div>
-      <div class="hook-chip" onclick="selectHook(this,'controversy')">🔥 Controversy</div>
-      <div class="hook-chip" onclick="selectHook(this,'story')">📖 Story</div>
-      <div class="hook-chip" onclick="selectHook(this,'secret')">🤫 Secret</div>
-      <div class="hook-chip" onclick="selectHook(this,'list')">📋 List</div>
-      <div class="hook-chip" onclick="selectHook(this,'visual')">🎬 Visual Drop</div>
-      <div class="hook-chip" onclick="selectHook(this,'pain')">😤 Pain Point</div>
-      <div class="hook-chip" onclick="selectHook(this,'trend')">📈 Trend</div>
-    </div>
-
-    <!-- TRENDING TOGGLE -->
-    <div class="trending-row">
-      <div class="toggle on" id="trendToggle" onclick="this.classList.toggle('on')"></div>
-      <div class="trending-label">
-        <b>Use Trending Angle</b>
-        AI searches what's hot in this topic and writes around it — fresh angle every time
-      </div>
-    </div>
-
-    <!-- SETTINGS -->
     <div class="slabel">Settings</div>
     <div class="r3">
       <div class="fg"><label>Platform</label>
@@ -297,64 +295,61 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
       <div class="fg"><label>Duration</label>
         <select id="dur"><option>15–30 sec</option><option>30–60 sec</option><option>60–90 sec</option></select>
       </div>
-      <div class="fg"><label>Tone</label>
-        <select id="tone">
-          <option value="auto">🎲 Auto-rotate</option>
-          <option value="bold">Bold & Direct</option>
-          <option value="emotional">Emotional</option>
-          <option value="humorous">Humorous</option>
-          <option value="minimal">Minimal & Cool</option>
-          <option value="educational">Educational</option>
+      <div class="fg"><label>Cut Style</label>
+        <select id="cut">
+          <option value="slow">Slow cinematic cuts</option>
+          <option value="fast">Fast aggressive cuts</option>
+          <option value="mixed">Mixed — slow build then fast</option>
+          <option value="single">Single long take per scene</option>
         </select>
       </div>
     </div>
     <div class="r2">
-      <div class="fg"><label>Your Niche</label><input type="text" id="niche" value="Urban Fashion"></div>
-      <div class="fg"><label>City / Style Keyword</label><input type="text" id="extra" placeholder="e.g. London, dark, vintage"></div>
+      <div class="fg"><label>Your Niche / Brand</label><input type="text" id="niche" value="Urban Fashion" placeholder="e.g. streetwear, nightlife, music"></div>
+      <div class="fg"><label>City / Location</label><input type="text" id="extra" placeholder="e.g. Tokyo, London, NYC"></div>
     </div>
 
-    <button class="gbtn" id="gbtn" onclick="generate()"><span>⚡</span> Generate Fresh Content</button>
+    <button class="gbtn" id="gbtn" onclick="generate()"><span>🎬</span> Generate Cinematic Edit</button>
 
     <div class="lwrap" id="lwrap">
       <div class="lring"></div>
-      <div class="ltxt" id="ltxt">Building fresh content…</div>
-      <div id="s1" class="lstep">📅 Loading today's topic & context…</div>
-      <div id="s2" class="lstep">📝 Writing script with fresh angle…</div>
-      <div id="s3" class="lstep">🎬 Generating varied scene queries…</div>
-      <div id="s4" class="lstep">🔍 Searching Pexels + Pixabay + Coverr…</div>
-      <div id="s5" class="lstep">✅ Auto-selecting best clips…</div>
+      <div class="ltxt" id="ltxt">Crafting cinematic scenes…</div>
+      <div id="s1" class="lstep">🎬 Writing scene-by-scene visual worlds…</div>
+      <div id="s2" class="lstep">🎨 Assigning unique aesthetic to each scene…</div>
+      <div id="s3" class="lstep">🔍 Searching Pexels with cinematic queries…</div>
+      <div id="s4" class="lstep">🎯 Scoring clips by cinematography match…</div>
+      <div id="s5" class="lstep">✂️ Generating CapCut edit guide…</div>
     </div>
 
     <div class="sout" id="sout">
-      <div class="slabel" style="margin-bottom:10px;">Generated Script</div>
-      <div class="sb hs-b"><div class="sbh">⚡ Hook Style + Tone<button class="cpb" onclick="cp('hsT',this)">copy</button></div><div class="sbb" id="hsT"></div></div>
-      <div class="sb h-b"><div class="sbh">🎣 Hook (0–3 sec)<button class="cpb" onclick="cp('hT',this)">copy</button></div><div class="sbb" id="hT"></div></div>
-      <div class="sb v-b"><div class="sbh">📦 Value / Story<button class="cpb" onclick="cp('vT',this)">copy</button></div><div class="sbb" id="vT"></div></div>
-      <div class="sb vi-b"><div class="sbh">🎬 Visual Direction<button class="cpb" onclick="cp('viT',this)">copy</button></div><div class="sbb" id="viT"></div></div>
-      <div class="sb c-b"><div class="sbh">📢 Call to Action<button class="cpb" onclick="cp('cT',this)">copy</button></div><div class="sbb" id="cT"></div></div>
-      <div class="sb ca-b"><div class="sbh">📝 Caption + Hashtags<button class="cpb" onclick="cp('caT',this)">copy</button></div><div class="sbb" id="caT"></div></div>
-      <button class="cp-all" onclick="cpAll()">📋 Copy Full Script</button>
+      <div class="slabel" style="margin-bottom:10px;">Script + Edit Notes</div>
+      <div class="sb h-b"><div class="sbh">🎣 Hook / Opening<button class="cpb" onclick="cp('hT',this)">copy</button></div><div class="sbb" id="hT"></div></div>
+      <div class="sb v-b"><div class="sbh">📦 Narrative Arc<button class="cpb" onclick="cp('vT',this)">copy</button></div><div class="sbb" id="vT"></div></div>
+      <div class="sb vi-b"><div class="sbh">🎬 Director's Notes<button class="cpb" onclick="cp('viT',this)">copy</button></div><div class="sbb" id="viT"></div></div>
+      <div class="sb c-b"><div class="sbh">📢 Caption / Caption Hook<button class="cpb" onclick="cp('caT',this)">copy</button></div><div class="sbb" id="caT"></div></div>
+      <button class="cp-all" onclick="cpAll()">📋 Copy Everything</button>
     </div>
   </div>
 
-  <!-- RIGHT: VIDEO WALL -->
+  <!-- RIGHT: CINEMATIC SCENE WALL -->
   <div class="rp">
     <div class="rph">
       <div class="rph-top">
-        <div class="rph-t">AUTO VIDEOS</div>
-        <div class="rph-s" id="rphS">Waiting…</div>
+        <div class="rph-t">SCENES</div>
+        <div class="rph-s" id="rphS">Select aesthetic + generate</div>
       </div>
-      <div class="source-row" id="sourceRow"></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
     <div class="vwall" id="vwall">
       <div class="vempty">
-        <div class="vempty-ico">🎬</div>
-        <div class="vempty-t">Fresh Every Click</div>
+        <div class="vempty-ico">🎞</div>
+        <div class="vempty-t">Every Scene Hits Different</div>
         <div class="vempty-s">
-          Every generate pulls from Pexels + Pixabay + Coverr<br>
-          with random page offsets — different clips every time.<br><br>
-          Topic auto-rotates daily. Hook style, tone & queries<br>
-          are all varied so content never repeats.
+          Pick an aesthetic world above.<br>
+          Each scene gets its own visual universe —<br>
+          different color grade, lighting, motion and<br>
+          shot type. Like teemu.jpeg / 777salty edits<br>
+          where every cut feels like a new dimension.
         </div>
       </div>
     </div>
@@ -364,407 +359,485 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 <script>
 const API = window.location.origin;
 
-// ── TOPICS ─────────────────────────────────────────────────
-const TOPICS = [
-  { name:'Urban Life',    icon:'🌆', kw:'city street urban neon night' },
-  { name:'Fashion',       icon:'👗', kw:'fashion model style walk outfit' },
-  { name:'Music',         icon:'🎵', kw:'music concert dj crowd festival' },
-  { name:'Nightlife',     icon:'🌙', kw:'nightlife club neon bar party' },
-  { name:'Aesthetic',     icon:'🎨', kw:'aesthetic cinematic minimal mood' },
-  { name:'Street Art',    icon:'🖼', kw:'graffiti mural street art color' },
-  { name:'Architecture',  icon:'🏙', kw:'architecture building skyline city' },
-  { name:'Subculture',    icon:'🎭', kw:'subculture youth skate alternative' },
-  { name:'Travel',        icon:'✈️', kw:'travel city rooftop explore adventure' },
-  { name:'Food & Culture',icon:'🍜', kw:'street food market culture dining' },
-];
-
-const HOOK_STYLES = ['question','stat','controversy','story','secret','list','visual','pain','trend'];
-const TONES       = ['bold','emotional','humorous','minimal','educational'];
-
-// ── Daily topic — changes every day automatically ──────────
-const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
-const dailyIdx  = dayOfYear % TOPICS.length;
-const dailyTopic = TOPICS[dailyIdx];
-
-// Set daily banner
-document.getElementById('dailyIcon').textContent = dailyTopic.icon;
-document.getElementById('dailyName').textContent = dailyTopic.name.toUpperCase();
-
-// Mark today's topic card and auto-select it
-let topic = { ...dailyTopic };
-document.querySelectorAll('.tp').forEach((el, i) => {
-  if (i === dailyIdx) {
-    el.classList.add('on', 'today');
-    topic = TOPICS[i];
-  }
-});
-
-// Daily gen count (localStorage)
-const todayKey = 'reelos_gen_' + new Date().toDateString();
-let todayCount = parseInt(localStorage.getItem(todayKey) || '0');
-document.getElementById('genCountBadge').textContent = `Today: ${todayCount} generated`;
-
-// ── History (localStorage) ─────────────────────────────────
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem('reelos_history') || '[]'); } catch { return []; }
-}
-function saveHistory(entry) {
-  const hist = getHistory();
-  hist.unshift(entry);
-  if (hist.length > 30) hist.pop();
-  localStorage.setItem('reelos_history', JSON.stringify(hist));
-  updateHistBadge();
-}
-function updateHistBadge() {
-  document.getElementById('histCount').textContent = getHistory().length;
-}
-function getRecentHooks(topicName) {
-  return getHistory().filter(h => h.topic === topicName).slice(0,5).map(h => h.hookStyle);
-}
-function getRecentQueries(topicName) {
-  return getHistory().filter(h => h.topic === topicName).slice(0,3).flatMap(h => h.queries || []);
-}
-updateHistBadge();
+// ── Aesthetic worlds ───────────────────────────────────────
+// Each world has scene-specific visual modifiers so consecutive
+// scenes feel completely different from each other
+const AESTHETIC_WORLDS = {
+  'cyberpunk': {
+    name: 'Cyberpunk',
+    baseKw: 'neon rain reflections city night dark',
+    sceneModifiers: [
+      { color:'teal neon', light:'backlit silhouette', motion:'slow motion', lens:'wide angle', queryPrefix:'neon rain' },
+      { color:'red orange neon', light:'fog harsh light', motion:'handheld shaky', lens:'close up', queryPrefix:'city smoke neon' },
+      { color:'purple blue neon', light:'led signage glow', motion:'timelapse', lens:'aerial drone', queryPrefix:'city aerial night' },
+      { color:'yellow white', light:'headlights', motion:'fast motion blur', lens:'street level', queryPrefix:'car lights speed' },
+    ]
+  },
+  'dark luxury': {
+    name: 'Dark Luxury',
+    baseKw: 'dark moody cinematic slow motion luxury',
+    sceneModifiers: [
+      { color:'deep black gold', light:'single spotlight', motion:'extreme slow motion', lens:'close up macro', queryPrefix:'luxury dark shadow' },
+      { color:'dark blue grey', light:'window light rays', motion:'slow pan', lens:'medium portrait', queryPrefix:'cinematic dark moody' },
+      { color:'black silver', light:'reflection surface', motion:'static locked off', lens:'wide symmetry', queryPrefix:'dark architecture minimal' },
+      { color:'warm amber black', light:'candle fire glow', motion:'slow zoom', lens:'shallow depth', queryPrefix:'fire smoke dark' },
+    ]
+  },
+  'film noir': {
+    name: 'Film Noir',
+    baseKw: 'film grain noir shadows smoke street',
+    sceneModifiers: [
+      { color:'black white high contrast', light:'venetian blind shadows', motion:'static', lens:'medium', queryPrefix:'shadows noir street' },
+      { color:'sepia grain', light:'single lamp post', motion:'slow walk', lens:'wide street', queryPrefix:'foggy street night lamp' },
+      { color:'black white grain', light:'rain window', motion:'reflection', lens:'close up', queryPrefix:'rain window reflection night' },
+      { color:'dark grey', light:'cigarette smoke', motion:'slow exhale', lens:'close macro', queryPrefix:'cigarette smoke dark close' },
+    ]
+  },
+  'golden hour': {
+    name: 'Golden Hour',
+    baseKw: 'golden warm light bokeh slow motion',
+    sceneModifiers: [
+      { color:'warm orange gold', light:'direct sun lens flare', motion:'slow motion', lens:'wide', queryPrefix:'golden hour sunset slow' },
+      { color:'warm yellow bokeh', light:'backlit silhouette', motion:'slow pan', lens:'portrait bokeh', queryPrefix:'silhouette golden light' },
+      { color:'amber warm', light:'dust particles light', motion:'floating particles', lens:'close macro', queryPrefix:'dust particles sunlight warm' },
+      { color:'orange red sky', light:'horizon glow', motion:'timelapse', lens:'wide landscape', queryPrefix:'sunset golden sky timelapse' },
+    ]
+  },
+  'underground': {
+    name: 'Underground',
+    baseKw: 'underground dark club crowd energy bass',
+    sceneModifiers: [
+      { color:'strobing white blue', light:'strobe flash', motion:'fast cuts', lens:'wide fisheye', queryPrefix:'club strobe crowd dark' },
+      { color:'red purple', light:'LED wash', motion:'slow crowd', lens:'crowd level', queryPrefix:'concert crowd slow motion' },
+      { color:'neon green', light:'DJ booth glow', motion:'zoom in', lens:'wide stage', queryPrefix:'dj booth neon dark' },
+      { color:'black flash', light:'darkness', motion:'motion blur', lens:'close hands', queryPrefix:'music bass hands dark' },
+    ]
+  },
+  'street grit': {
+    name: 'Street Grit',
+    baseKw: 'gritty street urban raw handheld',
+    sceneModifiers: [
+      { color:'desaturated grey', light:'overcast flat', motion:'handheld walk', lens:'wide street', queryPrefix:'street urban gritty walk' },
+      { color:'grain film look', light:'neon sign', motion:'static observe', lens:'medium portrait', queryPrefix:'street portrait grain neon' },
+      { color:'high contrast', light:'rain puddle reflection', motion:'slow motion rain', lens:'low angle', queryPrefix:'rain street reflection low' },
+      { color:'muted tones', light:'window light', motion:'slow pan', lens:'close texture', queryPrefix:'urban texture concrete close' },
+    ]
+  },
+  'minimal void': {
+    name: 'Minimal Void',
+    baseKw: 'minimal dark void space architecture',
+    sceneModifiers: [
+      { color:'pure black', light:'single light source', motion:'very slow pan', lens:'symmetry wide', queryPrefix:'minimal dark architecture symmetry' },
+      { color:'white void', light:'all white overexposed', motion:'static', lens:'geometric', queryPrefix:'minimal white space geometric' },
+      { color:'dark grey', light:'shadow line', motion:'shadow moving', lens:'abstract', queryPrefix:'shadow light abstract minimal' },
+      { color:'black white', light:'spotlight circle', motion:'slow zoom in', lens:'center composition', queryPrefix:'dark void minimal single light' },
+    ]
+  },
+  'retro wave': {
+    name: 'Retro Wave',
+    baseKw: 'retro synthwave neon purple pink 80s',
+    sceneModifiers: [
+      { color:'purple pink neon', light:'grid lines neon', motion:'slow pan', lens:'wide 80s', queryPrefix:'synthwave neon grid retro' },
+      { color:'pink magenta', light:'neon sign pink', motion:'zoom out', lens:'portrait', queryPrefix:'neon pink night portrait retro' },
+      { color:'electric blue purple', light:'fog neon blue', motion:'slow motion fog', lens:'wide', queryPrefix:'fog neon blue purple night' },
+      { color:'chrome pink', light:'sunset chrome', motion:'slow motion drive', lens:'car window', queryPrefix:'retro car drive sunset pink' },
+    ]
+  },
+};
 
 // ── State ──────────────────────────────────────────────────
-let selectedHook = 'auto';
+let selectedAesthetic = AESTHETIC_WORLDS['cyberpunk'];
+let topic = { name:'Urban Life', icon:'🌆', kw:'city street urban neon night' };
 
-function pick(el, name, icon, kw) {
-  document.querySelectorAll('.tp').forEach(t => t.classList.remove('on'));
+const TOPICS = [
+  {name:'Urban Life',icon:'🌆',kw:'city street urban neon night'},
+  {name:'Fashion',icon:'👗',kw:'fashion model style walk outfit'},
+  {name:'Music',icon:'🎵',kw:'music concert dj crowd festival'},
+  {name:'Nightlife',icon:'🌙',kw:'nightlife club neon bar party'},
+  {name:'Aesthetic',icon:'🎨',kw:'aesthetic cinematic minimal mood'},
+  {name:'Street Art',icon:'🖼',kw:'graffiti mural street art color'},
+  {name:'Architecture',icon:'🏙',kw:'architecture building skyline city'},
+  {name:'Subculture',icon:'🎭',kw:'subculture youth skate alternative'},
+  {name:'Travel',icon:'✈️',kw:'travel city rooftop explore adventure'},
+  {name:'Food & Culture',icon:'🍜',kw:'street food market culture dining'},
+];
+
+// Daily topic
+const dayOfYear = Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
+const dailyIdx  = dayOfYear % TOPICS.length;
+document.querySelectorAll('.tp').forEach((el,i)=>{
+  if(i===dailyIdx){ el.classList.add('on','today'); topic=TOPICS[i]; }
+});
+
+function selAes(el, key, icon, desc, kw) {
+  document.querySelectorAll('.aes').forEach(a=>a.classList.remove('on'));
   el.classList.add('on');
-  topic = { name, icon, kw };
+  selectedAesthetic = AESTHETIC_WORLDS[key];
 }
-
-function selectHook(el, style) {
-  document.querySelectorAll('.hook-chip').forEach(c => { c.classList.remove('on','auto'); });
-  el.classList.add('on');
-  if (style === 'auto') el.classList.add('auto');
-  selectedHook = style;
+function pick(el,name,icon,kw){
+  document.querySelectorAll('.tp').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); topic={name,icon,kw};
 }
 
 // ── Health check ───────────────────────────────────────────
-async function checkHealth() {
-  try {
-    const d = await fetch(`${API}/health`).then(r => r.json());
-    const badge = document.getElementById('badge');
-    const aiReady = d.ai_provider === 'claude' ? d.claude : d.groq;
-    const provider = (d.ai_provider || 'groq').toUpperCase();
-    const sources = [d.pexels && 'Pexels', d.pixabay && 'Pixabay'].filter(Boolean).join(' + ') || 'Pexels';
-    if (d.status === 'ok' && d.pexels && aiReady) {
-      badge.className = 'badge ok';
-      document.getElementById('badgeTxt').textContent = `${provider} + ${sources} ✓`;
+async function checkHealth(){
+  try{
+    const d=await fetch(`${API}/health`).then(r=>r.json());
+    const badge=document.getElementById('badge');
+    const aiOk=d.ai_provider==='claude'?d.claude:d.groq;
+    const prov=(d.ai_provider||'groq').toUpperCase();
+    if(d.status==='ok'&&d.pexels&&aiOk){
+      badge.className='badge ok';
+      document.getElementById('badgeTxt').textContent=`${prov} + Pexels ✓`;
     } else {
-      badge.className = 'badge err';
-      const missing = [];
-      if (!d.pexels) missing.push('PEXELS_KEY');
-      if (!aiReady)  missing.push(d.ai_provider === 'claude' ? 'ANTHROPIC_KEY' : 'GROQ_KEY');
-      document.getElementById('badgeTxt').textContent = `Missing: ${missing.join(', ')}`;
+      badge.className='badge err';
+      document.getElementById('badgeTxt').textContent=`Missing: ${[!d.pexels&&'PEXELS_KEY',!aiOk&&(d.ai_provider==='claude'?'ANTHROPIC_KEY':'GROQ_KEY')].filter(Boolean).join(', ')}`;
     }
-  } catch {
-    document.getElementById('badge').className = 'badge err';
-    document.getElementById('badgeTxt').textContent = 'Server unreachable';
-  }
+  }catch{ document.getElementById('badge').className='badge err'; document.getElementById('badgeTxt').textContent='Server unreachable'; }
 }
 checkHealth();
 
 // ── Steps ──────────────────────────────────────────────────
 let stmr;
-function startSteps() {
-  const ids = ['s1','s2','s3','s4','s5'];
-  let i = 0;
-  ids.forEach(id => document.getElementById(id).className = 'lstep');
-  stmr = setInterval(() => {
-    if (i > 0) document.getElementById(ids[i-1]).className = 'lstep ok';
-    if (i < ids.length) { document.getElementById(ids[i]).className = 'lstep act'; i++; }
+function startSteps(){
+  const ids=['s1','s2','s3','s4','s5']; let i=0;
+  ids.forEach(id=>document.getElementById(id).className='lstep');
+  stmr=setInterval(()=>{
+    if(i>0)document.getElementById(ids[i-1]).className='lstep ok';
+    if(i<ids.length){document.getElementById(ids[i]).className='lstep act';i++;}
     else clearInterval(stmr);
-  }, 900);
+  },900);
 }
+function setProgress(p){document.getElementById('progressFill').style.width=p+'%';}
 
 // ── AI call ────────────────────────────────────────────────
-async function callAI(prompt, system) {
-  const r = await fetch(`${API}/api/ai`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ max_tokens: 1500, system: system || 'You are a viral short-form video scriptwriter. Respond ONLY with valid JSON. No markdown, no backticks.', messages: [{ role: 'user', content: prompt }] })
+async function callAI(prompt,system){
+  const r=await fetch(`${API}/api/ai`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({max_tokens:2000,
+      system:system||'You are a cinematic video director and editor. Respond ONLY with valid JSON. No markdown, no backticks.',
+      messages:[{role:'user',content:prompt}]
+    })
   });
-  const d = await r.json();
-  if (d.error) throw new Error(typeof d.error === 'string' ? d.error : (d.error.message || JSON.stringify(d.error)));
-  const raw = (d.content?.[0]?.text || '{}').replace(/```json|```/g,'').trim();
-  try { return JSON.parse(raw); }
-  catch(e) { throw new Error('AI returned invalid JSON. Raw: ' + raw.slice(0,150)); }
+  const d=await r.json();
+  if(d.error) throw new Error(typeof d.error==='string'?d.error:(d.error.message||JSON.stringify(d.error)));
+  const raw=(d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim();
+  try{return JSON.parse(raw);}
+  catch(e){throw new Error('AI returned invalid JSON: '+raw.slice(0,150));}
 }
 
-// ── Pick hook style ────────────────────────────────────────
-function resolveHookStyle(topicName) {
-  if (selectedHook !== 'auto') return selectedHook;
-  const recentHooks = getRecentHooks(topicName);
-  // Pick a style not used recently
-  const fresh = HOOK_STYLES.filter(h => !recentHooks.includes(h));
-  const pool  = fresh.length ? fresh : HOOK_STYLES;
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
-// ── Pick tone ──────────────────────────────────────────────
-function resolveTone() {
-  const val = document.getElementById('tone').value;
-  if (val !== 'auto') return val;
-  return TONES[Math.floor(Math.random() * TONES.length)];
-}
-
-// ── Score video ────────────────────────────────────────────
-function scoreVid(v) {
+// ── Score video for scene ──────────────────────────────────
+function scoreForScene(video, scene) {
   let s = 0;
-  if (v.duration >= 5 && v.duration <= 25) s += 3;
-  else if (v.duration > 25 && v.duration <= 45) s += 1;
-  if (v.h > v.w) s += 2;
-  if (v.duration < 3) s -= 3;
-  if (v.file) s += 1;
+  const dur = video.duration||0;
+  const target = scene.durationSec||6;
+  // Duration match
+  if(Math.abs(dur-target)<=2) s+=5;
+  else if(Math.abs(dur-target)<=5) s+=3;
+  else if(Math.abs(dur-target)<=10) s+=1;
+  if(dur<3) s-=4;
+  if(dur>50) s-=2;
+  // Portrait preferred for reels
+  if(video.h>video.w) s+=3;
+  // Has file
+  if(video.file) s+=2;
+  // Motion match via duration heuristic
+  if(scene.motion==='slow motion'&&dur>=5&&dur<=20) s+=2;
+  if(scene.motion==='fast cuts'&&dur<=8) s+=2;
+  if(scene.motion==='timelapse'&&dur>=3&&dur<=15) s+=1;
   return s;
-}
-function bestVid(videos) {
-  if (!videos.length) return null;
-  return [...videos].sort((a,b) => scoreVid(b) - scoreVid(a))[0];
 }
 
 // ── MAIN GENERATE ──────────────────────────────────────────
-async function generate() {
+async function generate(){
   hideErr();
-  const niche     = document.getElementById('niche').value || 'Urban Fashion';
-  const plat      = document.getElementById('plat').value;
-  const dur       = document.getElementById('dur').value;
-  const extra     = document.getElementById('extra').value;
-  const hookStyle = resolveHookStyle(topic.name);
-  const tone      = resolveTone();
-  const useTrend  = document.getElementById('trendToggle').classList.contains('on');
+  const niche   = document.getElementById('niche').value||'Urban Fashion';
+  const plat    = document.getElementById('plat').value;
+  const dur     = document.getElementById('dur').value;
+  const cutStyle= document.getElementById('cut').value;
+  const extra   = document.getElementById('extra').value;
+  const aes     = selectedAesthetic;
 
-  // Get history context to avoid repetition
-  const recentHooks   = getRecentHooks(topic.name);
-  const recentQueries = getRecentQueries(topic.name);
-
-  document.getElementById('gbtn').disabled = true;
-  document.getElementById('lwrap').style.display = 'block';
-  document.getElementById('sout').className = 'sout';
-  document.getElementById('vwall').innerHTML = '';
-  document.getElementById('sourceRow').innerHTML = '';
-  document.getElementById('rphS').textContent = 'Generating…';
-  document.getElementById('ltxt').textContent = `Writing ${hookStyle} hook in ${tone} tone…`;
+  document.getElementById('gbtn').disabled=true;
+  document.getElementById('lwrap').style.display='block';
+  document.getElementById('sout').className='sout';
+  document.getElementById('vwall').innerHTML='';
+  document.getElementById('rphS').textContent='Generating…';
+  document.getElementById('ltxt').textContent=`${aes.name} · ${cutStyle} cuts`;
+  setProgress(5);
   startSteps();
 
-  try {
-    // Build avoid-repetition instructions
-    const avoidHooks   = recentHooks.length   ? `\nDO NOT use these recent hook styles: ${recentHooks.join(', ')}` : '';
-    const avoidQueries = recentQueries.length ? `\nDO NOT use these recent Pexels queries (find fresh alternatives): ${recentQueries.join(', ')}` : '';
-    const trendNote    = useTrend ? `\nUse a TRENDING angle for ${topic.name} content in ${new Date().getFullYear()} — reference what's currently popular in this space.` : '';
+  // Build scene modifier context for AI
+  const modCtx = aes.sceneModifiers.map((m,i)=>
+    `Scene ${i+1}: color=${m.color}, lighting=${m.light}, motion=${m.motion}, lens=${m.lens}, query prefix="${m.queryPrefix}"`
+  ).join('\n');
 
+  try {
+    // ── STEP 1: Generate cinematic script ─────────────────
     const script = await callAI(`
-Write a SHORT-FORM VIDEO SCRIPT for a ${niche} creator.
+You are a cinematic video director making a ${aes.name} aesthetic edit for ${niche}.
+Think: dark, moody, every scene feels like a completely different visual world.
+Reference: teemu.jpeg, 777salty instagram style.
 
 TOPIC: ${topic.name}
 PLATFORM: ${plat}
-DURATION: ${dur}
-HOOK STYLE: ${hookStyle} — the hook MUST follow this style strictly
-TONE: ${tone}
-BASE KEYWORDS: ${topic.kw}${extra ? ', ' + extra : ''}
-${trendNote}${avoidHooks}${avoidQueries}
+TOTAL DURATION: ${dur}
+CUT STYLE: ${cutStyle}
+LOCATION CONTEXT: ${extra||'urban city'}
+AESTHETIC: ${aes.name}
 
-Return ONLY valid JSON (no markdown):
+SCENE VISUAL WORLDS (each scene MUST use its assigned world):
+${modCtx}
+
+Return ONLY valid JSON:
 {
-  "hookStyleUsed": "${hookStyle} hook in ${tone} tone — brief description of approach",
-  "hook":    "scroll-stopping opening line using ${hookStyle} style, 0-3 sec",
-  "value":   "main content beats with timing cues, ${tone} tone throughout",
-  "visual":  "shot-by-shot direction labeled SCENE 1 / SCENE 2 / SCENE 3 / SCENE 4",
-  "cta":     "final call to action matching the ${tone} tone",
-  "caption": "ready-to-post caption with 7 trending hashtags",
+  "hook":      "cinematic opening line — mysterious, atmospheric, no generic phrases",
+  "narrative": "the emotional arc of this edit — what feeling builds across the 4 scenes",
+  "direction": "director's notes: exact timing, transitions, music mood suggestion",
+  "caption":   "instagram caption — short, dark, poetic. Max 2 sentences + 5 hashtags",
   "scenes": [
-    {"label":"Hook Shot",   "query":"3-5 word FRESH Pexels search (not generic)"},
-    {"label":"Story Build", "query":"3-5 word FRESH Pexels search (not generic)"},
-    {"label":"Peak Moment", "query":"3-5 word FRESH Pexels search (not generic)"},
-    {"label":"CTA Close",   "query":"3-5 word FRESH Pexels search (not generic)"}
+    {
+      "label":        "Scene 1 label",
+      "world":        "Name this scene's visual world in 3-4 words (e.g. 'Neon rain void')",
+      "vibe":         "One evocative sentence describing exactly what the viewer feels",
+      "color":        "${aes.sceneModifiers[0].color}",
+      "light":        "${aes.sceneModifiers[0].light}",
+      "motion":       "${aes.sceneModifiers[0].motion}",
+      "lens":         "${aes.sceneModifiers[0].lens}",
+      "durationSec":  5,
+      "capcut":       "CapCut note: e.g. 'speed ramp to 0.3x at 2s, add grain filter'",
+      "query":        "ULTRA specific Pexels query using prefix '${aes.sceneModifiers[0].queryPrefix}' + scene context",
+      "fallbacks":    ["backup query 1", "backup query 2"]
+    },
+    {
+      "label":        "Scene 2 label",
+      "world":        "Different visual world name",
+      "vibe":         "Different feeling from scene 1",
+      "color":        "${aes.sceneModifiers[1].color}",
+      "light":        "${aes.sceneModifiers[1].light}",
+      "motion":       "${aes.sceneModifiers[1].motion}",
+      "lens":         "${aes.sceneModifiers[1].lens}",
+      "durationSec":  7,
+      "capcut":       "CapCut note for this scene",
+      "query":        "ULTRA specific query using '${aes.sceneModifiers[1].queryPrefix}'",
+      "fallbacks":    ["backup 1", "backup 2"]
+    },
+    {
+      "label":        "Scene 3 label",
+      "world":        "Another different world",
+      "vibe":         "Different feeling from scenes 1 and 2",
+      "color":        "${aes.sceneModifiers[2].color}",
+      "light":        "${aes.sceneModifiers[2].light}",
+      "motion":       "${aes.sceneModifiers[2].motion}",
+      "lens":         "${aes.sceneModifiers[2].lens}",
+      "durationSec":  6,
+      "capcut":       "CapCut note",
+      "query":        "ULTRA specific query using '${aes.sceneModifiers[2].queryPrefix}'",
+      "fallbacks":    ["backup 1", "backup 2"]
+    },
+    {
+      "label":        "Scene 4 label",
+      "world":        "Final visual world — should feel like resolution",
+      "vibe":         "Closing feeling",
+      "color":        "${aes.sceneModifiers[3].color}",
+      "light":        "${aes.sceneModifiers[3].light}",
+      "motion":       "${aes.sceneModifiers[3].motion}",
+      "lens":         "${aes.sceneModifiers[3].lens}",
+      "durationSec":  4,
+      "capcut":       "CapCut note",
+      "query":        "ULTRA specific query using '${aes.sceneModifiers[3].queryPrefix}'",
+      "fallbacks":    ["backup 1", "backup 2"]
+    }
   ]
 }
 
-Scene queries must be SPECIFIC and VISUAL — avoid generic terms like "person walking" or "city".
-Base them on: ${topic.kw}${extra ? ' ' + extra : ''}
-${avoidQueries}`);
+RULES:
+- Each scene's "world" and "vibe" MUST feel completely different from adjacent scenes
+- Queries must be ultra-specific visual descriptions, not generic (never "person walking" or "city street")
+- The edit should feel like a journey through 4 different dimensions of the ${aes.name} world
+- Make it feel like a music video, not a social media post`);
+
+    setProgress(30);
 
     // Show script
-    document.getElementById('hsT').textContent = script.hookStyleUsed || `${hookStyle} hook · ${tone} tone`;
-    document.getElementById('hT').textContent  = script.hook    || '';
-    document.getElementById('vT').textContent  = script.value   || '';
-    document.getElementById('viT').textContent = script.visual  || '';
-    document.getElementById('cT').textContent  = script.cta     || '';
-    document.getElementById('caT').textContent = script.caption || '';
+    document.getElementById('hT').textContent  = script.hook      ||'';
+    document.getElementById('vT').textContent  = script.narrative  ||'';
+    document.getElementById('viT').textContent = script.direction  ||'';
+    document.getElementById('caT').textContent = script.caption    ||'';
     document.getElementById('sout').className  = 'sout show';
 
-    // Save to history
-    const scenes = script.scenes || [];
-    saveHistory({
-      topic:     topic.name,
-      hookStyle, tone,
-      hook:      script.hook,
-      queries:   scenes.map(s => s.query),
-      ts:        Date.now(),
-    });
-
-    // Update daily count
-    todayCount++;
-    localStorage.setItem(todayKey, todayCount);
-    document.getElementById('genCountBadge').textContent = `Today: ${todayCount} generated`;
-
-    // Build skeleton cards
+    // ── STEP 2: Build skeleton cards ──────────────────────
     const wall   = document.getElementById('vwall');
-    wall.innerHTML = '';
+    wall.innerHTML='';
+    const scenes = script.scenes||[];
     const colors = ['#FF3CAC','#4ECDC4','#FFE566','#7B61FF'];
 
-    const cards = scenes.map((sc, i) => {
-      const card = document.createElement('div');
-      card.className = 'scene-card';
-      card.innerHTML = `
-        <div class="scene-head">
-          <div class="scene-num" style="color:${colors[i%4]}">SCENE ${i+1} — ${sc.label}</div>
-          <div class="scene-right">
-            <div class="scene-st" id="st${i}">🔍 searching…</div>
+    const cards = scenes.map((sc,i)=>{
+      const card=document.createElement('div');
+      card.className='scene-card';
+      card.innerHTML=`
+        <div class="sc-head">
+          <div class="sc-left">
+            <div class="sc-num" style="color:${colors[i%4]}">SCENE ${i+1} — ${sc.label||''}</div>
+            <div class="sc-world">${sc.world||''}</div>
+            <div class="sc-vibe">${sc.vibe||''}</div>
           </div>
+          <div class="sc-status" id="st${i}">🔍 searching…</div>
         </div>
-        <div style="aspect-ratio:16/9;background:#0a0a12;display:flex;align-items:center;justify-content:center;">
-          <div class="lring" style="width:26px;height:26px;border-width:2px;margin:0;"></div>
-        </div>`;
+        <div class="sc-skeleton"></div>`;
       wall.appendChild(card);
       return card;
     });
 
-    // Search all sources in parallel — one per scene
-    const sourcesSeen = new Set();
-    let found = 0;
+    document.getElementById('rphS').textContent=`Matching ${scenes.length} scenes…`;
 
-    await Promise.all(scenes.map(async (sc, i) => {
-      const q      = extra ? `${sc.query} ${extra}` : sc.query;
-      const r      = await fetch(`${API}/api/videos?q=${encodeURIComponent(q)}&n=8`);
-      const data   = await r.json();
-      const videos = data.videos || [];
-      const srcs   = data.sources || [];
-      srcs.forEach(s => sourcesSeen.add(s));
+    // ── STEP 3: Search + score videos for each scene ──────
+    let found=0;
+    await Promise.all(scenes.map(async(sc,i)=>{
+      setProgress(30+(i/scenes.length)*65);
+      const queries=[sc.query,...(sc.fallbacks||[])].filter(Boolean);
+      let allVideos=[];
 
-      const picked = bestVid(videos);
-      const alts   = videos.filter(v => picked && v.id !== picked.id).slice(0,4);
-      const card   = cards[i];
-      const color  = colors[i%4];
+      // Try each query until we have enough
+      for(const q of queries){
+        const fullQ=extra?`${q} ${extra}`:q;
+        try{
+          const r=await fetch(`${API}/api/match-scene`,{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({scene:sc,extra})
+          });
+          const data=await r.json();
+          if(data.picked) allVideos.push(data.picked,...(data.alts||[]));
+          if(allVideos.length>=4) break;
+        }catch(e){ console.warn('Scene match err:',e.message); }
+      }
 
-      if (!picked) {
-        card.innerHTML = `
-          <div class="scene-head">
-            <div class="scene-num" style="color:${color}">SCENE ${i+1} — ${sc.label}</div>
-            <div class="scene-st" style="color:#ff6b6b;">⚠️ no results</div>
+      // Deduplicate
+      const seen=new Set();
+      allVideos=allVideos.filter(v=>{ if(!v||!v.file||seen.has(v.id))return false; seen.add(v.id); return true; });
+
+      const picked=allVideos.length?allVideos.sort((a,b)=>scoreForScene(b,sc)-scoreForScene(a,sc))[0]:null;
+      const alts=allVideos.filter(v=>picked&&v.id!==picked.id).slice(0,4);
+      const card=cards[i];
+      const color=colors[i%4];
+      const mod=aes.sceneModifiers[i%aes.sceneModifiers.length];
+
+      if(!picked){
+        document.getElementById(`st${i}`).textContent='⚠️ no clip';
+        document.getElementById(`st${i}`).className='sc-status err';
+        card.innerHTML=`
+          <div class="sc-head">
+            <div class="sc-left">
+              <div class="sc-num" style="color:${color}">SCENE ${i+1} — ${sc.label||''}</div>
+              <div class="sc-world">${sc.world||''}</div>
+              <div class="sc-vibe">${sc.vibe||''}</div>
+            </div>
+            <div class="sc-status err">⚠️ no clip</div>
           </div>
           <div style="padding:14px;font-size:12px;color:var(--muted);">
-            No videos for <b style="color:var(--text)">"${q}"</b><br>
-            <a href="https://www.pexels.com/search/videos/${encodeURIComponent(q)}/" target="_blank"
-               style="color:var(--accent);text-decoration:none;font-size:11px;">🔍 Browse Pexels manually →</a>
+            Try searching manually:<br>
+            <a href="https://www.pexels.com/search/videos/${encodeURIComponent(sc.query||'')}/" target="_blank"
+               style="color:var(--accent);text-decoration:none;">🔍 "${sc.query}" on Pexels →</a>
           </div>`;
         return;
       }
 
       found++;
-      const portrait  = picked.h > picked.w ? '9:16 ✓' : '16:9';
-      const srcClass  = picked.source || 'Pexels';
-      const altHTML   = alts.map((v,ai) => `
-        <img class="sw-t" src="${v.thumb}"
-             data-file="${v.file||''}" data-url="${v.url}"
-             data-dur="${v.duration}" data-ph="${v.photographer}" data-src="${v.source||''}"
-             onclick="swapVid(this,${i})" onerror="this.style.display='none'"
-             title="${v.source||'Video'} · ${v.duration}s">`).join('');
+      document.getElementById(`st${i}`).textContent='✅ matched';
+      document.getElementById(`st${i}`).className='sc-status ok';
 
-      card.innerHTML = `
-        <div class="scene-head">
-          <div class="scene-num" style="color:${color}">SCENE ${i+1} — ${sc.label}</div>
-          <div class="scene-right">
-            <span class="scene-src ${srcClass}" id="ssrc${i}">${srcClass}</span>
-            <div class="scene-st ok">✅ auto-picked</div>
+      const portrait=picked.h>picked.w?'9:16 ✓':'16:9';
+      const altHTML=alts.map((v,ai)=>`
+        <img class="sw-t" src="${v.thumb}"
+             data-file="${v.file||''}" data-url="${v.url||''}"
+             data-dur="${v.duration}" data-ph="${v.photographer||''}"
+             onclick="swapVid(this,${i})" onerror="this.style.display='none'">`).join('');
+
+      card.innerHTML=`
+        <div class="sc-head">
+          <div class="sc-left">
+            <div class="sc-num" style="color:${color}">SCENE ${i+1} — ${sc.label||''}</div>
+            <div class="sc-world">${sc.world||''}</div>
+            <div class="sc-vibe">${sc.vibe||''}</div>
           </div>
+          <div class="sc-status ok">✅ matched</div>
+        </div>
+        <div class="cin-meta">
+          <span class="cm-pill color">🎨 ${mod.color}</span>
+          <span class="cm-pill light">💡 ${mod.light}</span>
+          <span class="cm-pill motion">🎬 ${mod.motion}</span>
+          <span class="cm-pill lens">📷 ${mod.lens}</span>
+          <span class="cm-pill dur">⏱ ${sc.durationSec||'?'}s</span>
         </div>
         <div class="vid-area" onclick="togglePlay(${i})">
-          <video id="vid${i}" src="${picked.file||''}" poster="${picked.thumb}"
+          <video id="vid${i}" src="${picked.file||''}" poster="${picked.thumb||''}"
                  loop muted playsinline preload="metadata"
                  style="width:100%;height:100%;object-fit:cover;"></video>
           <div class="vid-ov"><div class="play-ic" id="pic${i}">▶</div></div>
         </div>
-        ${alts.length ? `<div class="swap-lbl">Swap clip (${alts.length} alts)</div><div class="swap-bar">${altHTML}</div>` : ''}
+        <div class="cc-guide">
+          <b>✂️ CapCut Guide</b>
+          ${sc.capcut||'Import clip → trim to '+sc.durationSec+'s → apply color grade'}
+        </div>
+        ${alts.length?`<div class="swap-lbl">Swap (${alts.length} alts)</div><div class="swap-bar">${altHTML}</div>`:''}
         <div class="vid-info">
           <div class="vid-meta">
-            <div class="vid-title" id="vtitle${i}">${sc.label}</div>
+            <div class="vid-title">${sc.world||sc.label||''}</div>
             <div class="vid-sub" id="vsub${i}">
               <span>⏱ ${picked.duration}s</span>
               <span>📐 ${portrait}</span>
-              <span>📸 ${picked.photographer}</span>
+              <span>📸 ${picked.photographer||'Pexels'}</span>
             </div>
           </div>
           <div class="vid-acts">
-            <a href="${picked.url}" target="_blank" id="vpx${i}" class="vbtn">↗ View</a>
-            <a href="${picked.file||picked.url}" download id="vdl${i}" class="vbtn hi">↓ Download</a>
+            <a href="${picked.url||'#'}" target="_blank" id="vpx${i}" class="vbtn">↗ Pexels</a>
+            <a href="${picked.file||picked.url||'#'}" download id="vdl${i}" class="vbtn hi">↓ Download</a>
           </div>
         </div>`;
     }));
 
-    document.getElementById('rphS').textContent = `${found}/${scenes.length} auto-picked`;
+    setProgress(100);
+    document.getElementById('rphS').textContent=`${found}/${scenes.length} scenes matched`;
 
-    // Show source badges
-    const srcRow = document.getElementById('sourceRow');
-    srcRow.innerHTML = '';
-    sourcesSeen.forEach(src => {
-      const b = document.createElement('div');
-      b.className = `src-badge ${src}`;
-      b.textContent = src;
-      srcRow.appendChild(b);
-    });
-
-  } catch(e) {
+  }catch(e){
     console.error(e);
-    showErr(e.message || 'Unknown error — open browser console (F12) for details.');
-    document.getElementById('rphS').textContent = 'Error';
-  } finally {
+    showErr(e.message||'Unknown error');
+    document.getElementById('rphS').textContent='Error';
+    setProgress(0);
+  }finally{
     clearInterval(stmr);
-    document.getElementById('gbtn').disabled = false;
-    document.getElementById('lwrap').style.display = 'none';
+    document.getElementById('gbtn').disabled=false;
+    document.getElementById('lwrap').style.display='none';
   }
 }
 
-// ── Controls ───────────────────────────────────────────────
-function togglePlay(i) {
-  const v = document.getElementById('vid'+i);
-  const p = document.getElementById('pic'+i);
-  if (!v) return;
-  if (v.paused) { v.play(); if(p) p.textContent='⏸'; }
-  else          { v.pause(); if(p) p.textContent='▶'; }
+function togglePlay(i){
+  const v=document.getElementById('vid'+i),p=document.getElementById('pic'+i);
+  if(!v)return; if(v.paused){v.play();if(p)p.textContent='⏸';}else{v.pause();if(p)p.textContent='▶';}
 }
-
-function swapVid(thumb, i) {
-  thumb.closest('.swap-bar').querySelectorAll('.sw-t').forEach(t => t.classList.remove('sel'));
+function swapVid(thumb,i){
+  thumb.closest('.swap-bar').querySelectorAll('.sw-t').forEach(t=>t.classList.remove('sel'));
   thumb.classList.add('sel');
-  const v = document.getElementById('vid'+i);
-  if (!v || !thumb.dataset.file) return;
-  const playing = !v.paused;
-  v.src = thumb.dataset.file; v.load();
-  if (playing) v.play();
-  const sub = document.getElementById('vsub'+i);
-  if (sub) sub.innerHTML = `<span>⏱ ${thumb.dataset.dur}s</span><span>📸 ${thumb.dataset.ph}</span>`;
-  const dl  = document.getElementById('vdl'+i); if(dl) dl.href = thumb.dataset.file;
-  const px  = document.getElementById('vpx'+i); if(px) px.href = thumb.dataset.url||'#';
-  const src = document.getElementById('ssrc'+i);
-  if (src) { src.className = `scene-src ${thumb.dataset.src||''}`; src.textContent = thumb.dataset.src||''; }
+  const v=document.getElementById('vid'+i);
+  if(!v||!thumb.dataset.file)return;
+  const playing=!v.paused; v.src=thumb.dataset.file; v.load(); if(playing)v.play();
+  const sub=document.getElementById('vsub'+i);
+  if(sub)sub.innerHTML=`<span>⏱ ${thumb.dataset.dur}s</span><span>📸 ${thumb.dataset.ph}</span>`;
+  const dl=document.getElementById('vdl'+i);if(dl)dl.href=thumb.dataset.file;
+  const px=document.getElementById('vpx'+i);if(px)px.href=thumb.dataset.url||'#';
 }
-
-function showErr(msg) { document.getElementById('errMsg').textContent = msg; document.getElementById('errBanner').className = 'err-banner show'; }
-function hideErr() { document.getElementById('errBanner').className = 'err-banner'; }
-
-function cp(id, btn) {
+function showErr(msg){document.getElementById('errMsg').textContent=msg;document.getElementById('errBanner').className='err-banner show';}
+function hideErr(){document.getElementById('errBanner').className='err-banner';}
+function cp(id,btn){
   navigator.clipboard.writeText(document.getElementById(id).textContent);
-  btn.textContent='done!'; setTimeout(()=>btn.textContent='copy',1200);
+  btn.textContent='done!';setTimeout(()=>btn.textContent='copy',1200);
 }
-function cpAll() {
-  const ids  = ['hsT','hT','vT','viT','cT','caT'];
-  const lbls = ['⚡ HOOK STYLE','🎣 HOOK','📦 VALUE','🎬 VISUAL DIRECTION','📢 CTA','📝 CAPTION'];
+function cpAll(){
+  const ids=['hT','vT','viT','caT'];
+  const lbls=['🎣 HOOK','📦 NARRATIVE','🎬 DIRECTION','📝 CAPTION'];
   navigator.clipboard.writeText(ids.map((id,i)=>lbls[i]+'\n'+document.getElementById(id).textContent).join('\n\n---\n\n'));
-  const b = document.querySelector('.cp-all');
-  b.textContent='✅ Copied!'; setTimeout(()=>b.textContent='📋 Copy Full Script',1600);
+  const b=document.querySelector('.cp-all');
+  b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy Everything',1600);
 }
 </script>
 </body>

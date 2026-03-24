@@ -3,77 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REEL OS — Cinematic Edit Engine</title>
+<title>REEL OS — One Perfect Clip</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#040406;--surface:#080810;--card:#0d0d16;--border:#161624;
+  --bg:#040406;--surface:#08080f;--card:#0c0c15;--border:#14141f;
   --accent:#FF3CAC;--a2:#784BA0;--a3:#2B86C5;
   --yellow:#FFE566;--green:#00E5A0;--red:#FF6B6B;
-  --text:#EEEEF2;--muted:#4a4a62;
+  --text:#EEEEF2;--muted:#44445a;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(255,60,172,.06)0%,transparent 55%),
-             radial-gradient(ellipse 50% 60% at 5% 90%,rgba(43,134,197,.05)0%,transparent 55%);
+  background:radial-gradient(ellipse 60% 50% at 80% 0%,rgba(255,60,172,.07)0%,transparent 60%),
+             radial-gradient(ellipse 50% 60% at 0% 100%,rgba(43,134,197,.05)0%,transparent 60%);
   pointer-events:none;z-index:0;}
 
 /* HEADER */
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px 32px;border-bottom:1px solid var(--border);
-  background:rgba(4,4,6,.97);backdrop-filter:blur(20px);position:relative;z-index:10;flex-wrap:wrap;}
+  padding:14px 28px;border-bottom:1px solid var(--border);
+  background:rgba(4,4,6,.97);backdrop-filter:blur(20px);
+  position:relative;z-index:10;flex-wrap:wrap;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:6px;}
 .logo em{color:var(--accent);font-style:normal;}
-.logo-sub{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
-.header-right{display:flex;align-items:center;gap:8px;}
-.badge{display:flex;align-items:center;gap:6px;border-radius:100px;padding:6px 14px;
+.logo-sub{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);
+  letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.hbadge{display:flex;align-items:center;gap:6px;border-radius:100px;padding:6px 14px;
   border:1px solid var(--border);font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);}
-.badge.ok{background:rgba(0,229,160,.07);border-color:rgba(0,229,160,.2);color:var(--green);}
-.badge.err{background:rgba(255,60,172,.07);border-color:rgba(255,60,172,.2);color:var(--red);}
+.hbadge.ok{background:rgba(0,229,160,.07);border-color:rgba(0,229,160,.2);color:var(--green);}
+.hbadge.err{background:rgba(255,60,172,.07);border-color:rgba(255,60,172,.2);color:var(--red);}
 .dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
-/* AESTHETIC SELECTOR */
-.aesthetic-bar{padding:14px 32px;border-bottom:1px solid var(--border);
-  background:rgba(4,4,6,.9);position:relative;z-index:9;}
-.aesthetic-bar-label{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
-  letter-spacing:3px;color:var(--muted);margin-bottom:10px;}
-.aesthetic-row{display:flex;gap:8px;flex-wrap:wrap;}
-.aes{background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:8px 14px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:8px;}
-.aes:hover{border-color:#252535;}
+/* MAIN LAYOUT */
+.wrap{max-width:1100px;margin:0 auto;padding:32px 28px;position:relative;z-index:1;}
+
+/* AESTHETIC PICKER */
+.section-label{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;
+  letter-spacing:3px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.aes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px;}
+.aes{background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 10px;cursor:pointer;transition:all .18s;text-align:center;}
+.aes:hover{border-color:#222230;}
 .aes.on{border-color:var(--accent);background:rgba(255,60,172,.07);}
-.aes-icon{font-size:16px;}
-.aes-name{font-size:11px;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.aes-icon{font-size:22px;display:block;margin-bottom:6px;}
+.aes-name{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;
+  letter-spacing:2px;color:var(--muted);}
 .aes.on .aes-name{color:var(--accent);}
-.aes-desc{font-size:9px;color:var(--muted);margin-top:1px;display:none;}
 
-/* LAYOUT */
-.shell{display:grid;grid-template-columns:1fr 460px;min-height:calc(100vh - 120px);position:relative;z-index:1;}
-.lp{padding:24px 32px;border-right:1px solid var(--border);overflow-y:auto;}
+/* TOPIC ROW */
+.topic-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+.tp{background:var(--card);border:1px solid var(--border);border-radius:100px;
+  padding:7px 14px;cursor:pointer;transition:all .18s;
+  font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.tp:hover{border-color:#222230;}
+.tp.on{background:rgba(255,60,172,.08);border-color:var(--accent);color:var(--text);}
+.tp.today{border-color:rgba(255,229,102,.3);}
+.tp.today::after{content:'today';font-family:'Space Mono',monospace;font-size:7px;
+  background:var(--yellow);color:#000;border-radius:3px;padding:1px 5px;margin-left:2px;}
 
-.slabel{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;
-  letter-spacing:3px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.slabel::after{content:'';flex:1;height:1px;background:var(--border);}
-
-/* TOPICS */
-.topics{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:20px;}
-.tp{background:var(--card);border:1px solid var(--border);border-radius:9px;
-  padding:10px 5px;text-align:center;cursor:pointer;transition:all .18s;position:relative;}
-.tp:hover{border-color:#252535;}
-.tp.on{background:rgba(255,60,172,.08);border-color:var(--accent);}
-.tp.today::after{content:'TODAY';position:absolute;top:-6px;right:3px;
-  font-family:'Space Mono',monospace;font-size:6px;background:var(--yellow);
-  color:#000;border-radius:3px;padding:1px 4px;letter-spacing:1px;}
-.tp i{font-size:18px;display:block;margin-bottom:4px;font-style:normal;}
-.tp s{font-size:8px;text-transform:uppercase;letter-spacing:1px;
-  font-family:'Space Mono',monospace;color:var(--muted);text-decoration:none;}
-.tp.on s{color:var(--accent);}
-
-/* FORM */
-.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+/* SETTINGS ROW */
+.settings-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:24px;}
 .fg label{display:block;font-family:'Space Mono',monospace;font-size:8px;
   text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:5px;}
 .fg select,.fg input{width:100%;background:var(--card);border:1px solid var(--border);
@@ -83,145 +75,143 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 
 /* GEN BTN */
 .gbtn{width:100%;background:linear-gradient(135deg,var(--accent),var(--a2));
-  color:#fff;border:none;border-radius:11px;padding:15px;font-size:14px;font-weight:600;
+  color:#fff;border:none;border-radius:11px;padding:15px;font-size:15px;font-weight:600;
   cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;
-  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;}
-.gbtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,60,172,.3);}
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:32px;
+  letter-spacing:.3px;}
+.gbtn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(255,60,172,.3);}
 .gbtn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
 
-/* LOADING */
-.lwrap{display:none;padding:22px;text-align:center;}
-.lring{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ltxt{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
-.lstep{font-size:11px;color:var(--muted);margin-top:6px;transition:color .3s;}
-.lstep.act{color:var(--accent);} .lstep.ok{color:var(--green);}
+/* SCENARIO CARD */
+.scenario{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;margin-bottom:28px;animation:fu .3s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.scenario-head{padding:18px 22px;border-bottom:1px solid var(--border);}
+.scenario-aes{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;
+  letter-spacing:3px;color:var(--accent);margin-bottom:8px;}
+.scenario-world{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;
+  line-height:1;margin-bottom:8px;}
+.scenario-desc{font-size:14px;color:var(--muted);line-height:1.7;max-width:600px;}
+.scenario-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.smeta{font-family:'Space Mono',monospace;font-size:9px;padding:4px 10px;
+  border-radius:100px;border:1px solid var(--border);color:var(--muted);}
+.smeta.color{border-color:rgba(255,229,102,.3);color:var(--yellow);}
+.smeta.light{border-color:rgba(43,134,197,.3);color:var(--a3);}
+.smeta.motion{border-color:rgba(255,60,172,.3);color:var(--accent);}
+.smeta.lens{border-color:rgba(0,229,160,.3);color:var(--green);}
 
-/* SCRIPT BLOCKS */
-.sout{display:none;}.sout.show{display:block;}
-.sb{background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:8px;overflow:hidden;animation:fu .3s ease;}
-@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.sbh{padding:9px 14px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;
-  font-size:9px;text-transform:uppercase;letter-spacing:2px;
+/* CAPTION + CAPCUT */
+.info-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 22px;
+  border-bottom:1px solid var(--border);}
+.info-block label{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
+  letter-spacing:2px;color:var(--muted);display:block;margin-bottom:6px;}
+.info-block p{font-size:12px;color:var(--text);line-height:1.7;}
+.copy-inline{background:none;border:1px solid var(--border);border-radius:5px;
+  color:var(--muted);padding:3px 8px;font-size:9px;cursor:pointer;
+  font-family:'Space Mono',monospace;float:right;transition:all .2s;}
+.copy-inline:hover{color:var(--text);}
+
+/* 4 CLIP OPTIONS GRID */
+.clips-label{padding:14px 22px 10px;font-family:'Space Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:3px;color:var(--muted);
   display:flex;align-items:center;justify-content:space-between;}
-.sbb{padding:12px 14px;font-size:13px;line-height:1.85;color:var(--text);white-space:pre-wrap;}
-.h-b  .sbh{color:var(--red);background:rgba(255,107,107,.04);}
-.v-b  .sbh{color:#4ECDC4;background:rgba(78,205,196,.04);}
-.vi-b .sbh{color:var(--yellow);background:rgba(255,229,102,.04);}
-.c-b  .sbh{color:var(--accent);background:rgba(255,60,172,.04);}
-.ca-b .sbh{color:var(--a3);background:rgba(43,134,197,.04);}
-.cpb{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);
-  padding:3px 9px;font-size:9px;cursor:pointer;font-family:'Space Mono',monospace;}
-.cpb:hover{color:var(--text);}
-.cp-all{width:100%;background:none;border:1px solid var(--border);border-radius:9px;
-  color:var(--muted);padding:11px;font-size:11px;cursor:pointer;
-  font-family:'Space Mono',monospace;margin-top:4px;}
-.cp-all:hover{color:var(--text);}
+.clips-count{color:var(--green);}
+.clips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 16px;}
 
-/* ERROR */
-.err-banner{display:none;background:rgba(255,60,172,.07);border:1px solid rgba(255,60,172,.2);
-  border-radius:9px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#ff8aaa;line-height:1.6;}
-.err-banner.show{display:block;}
-.err-banner b{color:var(--accent);display:block;margin-bottom:3px;
-  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;}
+/* CLIP CARD */
+.clip-card{background:var(--surface);border:2px solid var(--border);border-radius:10px;
+  overflow:hidden;cursor:pointer;transition:all .22s;position:relative;}
+.clip-card:hover{border-color:rgba(255,60,172,.4);transform:translateY(-2px);}
+.clip-card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.clip-card.loading{pointer-events:none;opacity:.6;}
 
-/* RIGHT PANEL */
-.rp{background:var(--surface);overflow-y:auto;display:flex;flex-direction:column;}
-.rph{padding:14px 16px 10px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;background:var(--surface);z-index:5;}
-.rph-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.rph-t{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;}
-.rph-s{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
-.progress-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a3));width:0%;transition:width .4s ease;}
+.clip-thumb{position:relative;aspect-ratio:9/16;background:#000;overflow:hidden;}
+.clip-thumb video,.clip-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.clip-overlay{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:rgba(0,0,0,.3);
+  opacity:0;transition:opacity .2s;}
+.clip-card:hover .clip-overlay{opacity:1;}
+.clip-play{width:48px;height:48px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:18px;transition:all .2s;}
+.clip-card:hover .clip-play{background:rgba(255,60,172,.5);}
 
-.vwall{padding:12px;flex:1;}
-.vempty{min-height:340px;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;text-align:center;padding:36px;color:var(--muted);}
-.vempty-ico{font-size:44px;opacity:.1;margin-bottom:12px;}
-.vempty-t{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
-  opacity:.15;color:var(--text);margin-bottom:8px;}
-.vempty-s{font-size:11px;line-height:1.8;opacity:.4;}
+.clip-num{position:absolute;top:8px;left:8px;font-family:'Bebas Neue',sans-serif;
+  font-size:16px;letter-spacing:2px;color:#fff;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:2px 8px;}
 
-/* SCENE CARDS */
-.scene-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
-  overflow:hidden;margin-bottom:16px;animation:fu .35s ease;transition:border-color .2s;}
-.scene-card:hover{border-color:rgba(255,60,172,.2);}
+.selected-badge{position:absolute;top:8px;right:8px;
+  background:var(--accent);color:#fff;font-family:'Space Mono',monospace;
+  font-size:8px;letter-spacing:1px;text-transform:uppercase;
+  border-radius:5px;padding:3px 8px;display:none;}
+.clip-card.selected .selected-badge{display:block;}
 
-/* SCENE HEADER */
-.sc-head{padding:10px 14px;border-bottom:1px solid var(--border);
-  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
-.sc-left{flex:1;}
-.sc-num{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;margin-bottom:3px;}
-.sc-world{font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;}
-.sc-vibe{font-size:11px;color:var(--muted);font-style:italic;line-height:1.4;}
-.sc-status{font-size:10px;font-family:'Space Mono',monospace;color:var(--muted);white-space:nowrap;}
-.sc-status.ok{color:var(--green);}
-.sc-status.err{color:var(--red);}
+.clip-info{padding:10px 12px;}
+.clip-dur{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);
+  display:flex;gap:8px;margin-bottom:4px;}
+.clip-ph{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* CINEMATIC META ROW */
-.cin-meta{display:flex;gap:5px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.cm-pill{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;
-  letter-spacing:1px;padding:3px 8px;border-radius:100px;border:1px solid var(--border);color:var(--muted);}
-.cm-pill.color{border-color:rgba(255,229,102,.3);color:var(--yellow);}
-.cm-pill.light{border-color:rgba(43,134,197,.3);color:var(--a3);}
-.cm-pill.motion{border-color:rgba(255,60,172,.3);color:var(--accent);}
-.cm-pill.lens{border-color:rgba(0,229,160,.3);color:var(--green);}
-.cm-pill.dur{border-color:rgba(120,75,160,.3);color:#b388ff;}
-
-/* VIDEO */
-.vid-area{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;cursor:pointer;}
-.vid-area video{width:100%;height:100%;object-fit:cover;display:block;}
-.vid-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6)0%,transparent 45%);
-  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
-.vid-area:hover .vid-ov{opacity:1;}
-.play-ic{width:44px;height:44px;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:15px;transition:all .2s;}
-.vid-area:hover .play-ic{background:rgba(255,60,172,.45);transform:scale(1.08);}
-
-/* CAPCUT GUIDE */
-.cc-guide{padding:10px 14px;border-bottom:1px solid var(--border);
-  background:rgba(255,229,102,.03);font-size:11px;color:var(--muted);line-height:1.6;}
-.cc-guide b{color:var(--yellow);font-family:'Space Mono',monospace;font-size:9px;
-  letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;}
-
-/* SWAP */
-.swap-lbl{padding:6px 14px 2px;font-family:'Space Mono',monospace;font-size:8px;
-  text-transform:uppercase;letter-spacing:2px;color:var(--muted);}
-.swap-bar{display:flex;gap:5px;padding:0 14px 8px;overflow-x:auto;}
-.sw-t{width:52px;height:35px;border-radius:5px;object-fit:cover;
-  border:2px solid transparent;cursor:pointer;transition:all .2s;flex-shrink:0;}
-.sw-t:hover,.sw-t.sel{border-color:var(--accent);}
-
-/* INFO ROW */
-.vid-info{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.vid-meta{flex:1;min-width:0;}
-.vid-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.vid-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;}
-.vid-acts{display:flex;gap:5px;flex-shrink:0;}
-.vbtn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;
-  font-size:9px;cursor:pointer;color:var(--muted);font-family:'Space Mono',monospace;
-  transition:all .2s;text-decoration:none;display:inline-block;}
-.vbtn:hover{color:var(--text);border-color:#333;}
-.vbtn.hi{background:rgba(255,60,172,.1);border-color:rgba(255,60,172,.3);color:var(--accent);}
-
-/* SKELETON */
-.sc-skeleton{aspect-ratio:16/9;
-  background:linear-gradient(90deg,var(--card)25%,#111122 50%,var(--card)75%);
+/* SKELETON CLIP */
+.clip-skeleton{aspect-ratio:9/16;
+  background:linear-gradient(90deg,var(--card)25%,#0f0f1a 50%,var(--card)75%);
   background-size:200% 100%;animation:shimmer 1.4s infinite;}
 @keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
+
+/* DOWNLOAD SECTION */
+.dl-section{padding:16px 22px;display:flex;align-items:center;gap:12px;
+  border-top:1px solid var(--border);flex-wrap:wrap;}
+.dl-btn{display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--accent),var(--a2));
+  color:#fff;border:none;border-radius:9px;padding:12px 22px;font-size:13px;
+  font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .2s;text-decoration:none;}
+.dl-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,60,172,.3);}
+.dl-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.view-btn{display:flex;align-items:center;gap:6px;background:none;
+  border:1px solid var(--border);border-radius:9px;padding:12px 18px;
+  font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .2s;text-decoration:none;}
+.view-btn:hover{color:var(--text);border-color:#333;}
+.regen-btn{margin-left:auto;background:none;border:1px solid var(--border);
+  border-radius:9px;padding:10px 16px;font-size:11px;color:var(--muted);
+  cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s;}
+.regen-btn:hover{color:var(--text);border-color:#333;}
+
+/* LOADING */
+.lwrap{text-align:center;padding:48px 20px;}
+.lring{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ltxt{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;
+  color:var(--muted);margin-bottom:16px;text-transform:uppercase;}
+.lstep{font-size:12px;color:var(--muted);margin-top:8px;transition:color .3s;}
+.lstep.act{color:var(--accent);} .lstep.ok{color:var(--green);}
+
+/* EMPTY */
+.empty{text-align:center;padding:64px 20px;color:var(--muted);}
+.empty-icon{font-size:52px;opacity:.1;display:block;margin-bottom:16px;}
+.empty-t{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;
+  opacity:.15;color:var(--text);margin-bottom:8px;}
+.empty-s{font-size:12px;line-height:1.8;opacity:.4;}
+
+/* ERROR */
+.err{display:none;background:rgba(255,60,172,.07);border:1px solid rgba(255,60,172,.2);
+  border-radius:9px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#ff8aaa;line-height:1.6;}
+.err.show{display:block;}
+.err b{color:var(--accent);display:block;margin-bottom:3px;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;}
 
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-
-@media(max-width:900px){
-  .shell{grid-template-columns:1fr;}
-  .r3{grid-template-columns:1fr 1fr;}
-  header,.lp,.aesthetic-bar{padding:14px 18px;}
+@media(max-width:700px){
+  .aes-grid{grid-template-columns:repeat(4,1fr);}
+  .settings-row{grid-template-columns:1fr 1fr;}
+  .clips-grid{grid-template-columns:repeat(2,1fr);}
+  .info-row{grid-template-columns:1fr;}
+  .wrap{padding:20px 16px;}
+  header{padding:12px 16px;}
 }
 </style>
 </head>
@@ -230,292 +220,155 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 <header>
   <div>
     <div class="logo">REEL<em>OS</em></div>
-    <div class="logo-sub">Cinematic Edit Engine</div>
+    <div class="logo-sub">One Perfect Clip</div>
   </div>
-  <div class="header-right">
-    <div class="badge" id="badge"><div class="dot"></div><span id="badgeTxt">Checking…</span></div>
-  </div>
+  <div class="hbadge" id="badge"><div class="dot"></div><span id="badgeTxt">Checking…</span></div>
 </header>
 
-<!-- AESTHETIC WORLD SELECTOR -->
-<div class="aesthetic-bar">
-  <div class="aesthetic-bar-label">Aesthetic World — each scene pulls clips from this visual universe</div>
-  <div class="aesthetic-row" id="aesRow">
-    <div class="aes on" onclick="selAes(this,'cyberpunk','🌆','dark neon rain reflections city night','neon rain reflections city night dark')">
-      <span class="aes-icon">🌆</span><div><div class="aes-name">Cyberpunk</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'dark luxury','🖤','dark luxury moody slow motion cinematic','dark moody cinematic slow motion luxury')">
-      <span class="aes-icon">🖤</span><div><div class="aes-name">Dark Luxury</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'film noir','🎞','film grain noir black white shadows smoke','film grain noir shadows smoke street')">
-      <span class="aes-icon">🎞</span><div><div class="aes-name">Film Noir</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'golden hour','🌅','golden hour warm light slow motion cinematic','golden warm light bokeh slow motion')">
-      <span class="aes-icon">🌅</span><div><div class="aes-name">Golden Hour</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'underground','🎵','underground dark club music bass crowd neon','underground dark club crowd energy bass')">
-      <span class="aes-icon">🎵</span><div><div class="aes-name">Underground</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'street grit','🏙','gritty urban street raw handheld night','gritty street urban raw handheld')">
-      <span class="aes-icon">🏙</span><div><div class="aes-name">Street Grit</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'minimal void','⬛','minimal dark void empty space architecture','minimal dark void space architecture')">
-      <span class="aes-icon">⬛</span><div><div class="aes-name">Minimal Void</div></div>
-    </div>
-    <div class="aes" onclick="selAes(this,'retro wave','📼','retro 80s synthwave neon purple pink','retro synthwave neon purple pink 80s')">
-      <span class="aes-icon">📼</span><div><div class="aes-name">Retro Wave</div></div>
-    </div>
+<div class="wrap">
+
+  <div class="err" id="errBox"><b>⚠️ Error</b><span id="errMsg"></span></div>
+
+  <!-- AESTHETIC -->
+  <div class="section-label">Aesthetic World</div>
+  <div class="aes-grid">
+    <div class="aes on" onclick="selAes(this,'cyberpunk')"><span class="aes-icon">🌆</span><div class="aes-name">Cyberpunk</div></div>
+    <div class="aes" onclick="selAes(this,'dark luxury')"><span class="aes-icon">🖤</span><div class="aes-name">Dark Luxury</div></div>
+    <div class="aes" onclick="selAes(this,'film noir')"><span class="aes-icon">🎞</span><div class="aes-name">Film Noir</div></div>
+    <div class="aes" onclick="selAes(this,'golden hour')"><span class="aes-icon">🌅</span><div class="aes-name">Golden Hour</div></div>
+    <div class="aes" onclick="selAes(this,'underground')"><span class="aes-icon">🎵</span><div class="aes-name">Underground</div></div>
+    <div class="aes" onclick="selAes(this,'street grit')"><span class="aes-icon">🏙</span><div class="aes-name">Street Grit</div></div>
+    <div class="aes" onclick="selAes(this,'minimal void')"><span class="aes-icon">⬛</span><div class="aes-name">Minimal Void</div></div>
+    <div class="aes" onclick="selAes(this,'retro wave')"><span class="aes-icon">📼</span><div class="aes-name">Retro Wave</div></div>
   </div>
-</div>
 
-<div class="shell">
-  <div class="lp">
+  <!-- TOPIC -->
+  <div class="section-label">Topic</div>
+  <div class="topic-row" id="topicRow">
+    <div class="tp" onclick="pick(this,'Urban Life','🌆')"><span>🌆</span> Urban</div>
+    <div class="tp" onclick="pick(this,'Fashion','👗')"><span>👗</span> Fashion</div>
+    <div class="tp" onclick="pick(this,'Music','🎵')"><span>🎵</span> Music</div>
+    <div class="tp" onclick="pick(this,'Nightlife','🌙')"><span>🌙</span> Nightlife</div>
+    <div class="tp" onclick="pick(this,'Aesthetic','🎨')"><span>🎨</span> Aesthetic</div>
+    <div class="tp" onclick="pick(this,'Street Art','🖼')"><span>🖼</span> Street Art</div>
+    <div class="tp" onclick="pick(this,'Architecture','🏙')"><span>🏙</span> Arch.</div>
+    <div class="tp" onclick="pick(this,'Subculture','🎭')"><span>🎭</span> Culture</div>
+    <div class="tp" onclick="pick(this,'Travel','✈️')"><span>✈️</span> Travel</div>
+    <div class="tp" onclick="pick(this,'Food','🍜')"><span>🍜</span> Food</div>
+  </div>
 
-    <div class="err-banner" id="errBanner"><b>⚠️ Error</b><span id="errMsg"></span></div>
-
-    <div class="slabel">Topic</div>
-    <div class="topics" id="topicGrid">
-      <div class="tp" onclick="pick(this,'Urban Life','🌆','city street urban neon night')"><i>🌆</i><s>Urban</s></div>
-      <div class="tp" onclick="pick(this,'Fashion','👗','fashion model style walk outfit')"><i>👗</i><s>Fashion</s></div>
-      <div class="tp" onclick="pick(this,'Music','🎵','music concert dj crowd festival')"><i>🎵</i><s>Music</s></div>
-      <div class="tp" onclick="pick(this,'Nightlife','🌙','nightlife club neon bar party')"><i>🌙</i><s>Night</s></div>
-      <div class="tp" onclick="pick(this,'Aesthetic','🎨','aesthetic cinematic minimal mood')"><i>🎨</i><s>Aesthetic</s></div>
-      <div class="tp" onclick="pick(this,'Street Art','🖼','graffiti mural street art color')"><i>🖼</i><s>Street Art</s></div>
-      <div class="tp" onclick="pick(this,'Architecture','🏙','architecture building skyline city')"><i>🏙</i><s>Arch.</s></div>
-      <div class="tp" onclick="pick(this,'Subculture','🎭','subculture youth skate alternative')"><i>🎭</i><s>Culture</s></div>
-      <div class="tp" onclick="pick(this,'Travel','✈️','travel city rooftop explore adventure')"><i>✈️</i><s>Travel</s></div>
-      <div class="tp" onclick="pick(this,'Food & Culture','🍜','street food market culture dining')"><i>🍜</i><s>Food</s></div>
+  <!-- SETTINGS -->
+  <div class="section-label">Settings</div>
+  <div class="settings-row">
+    <div class="fg"><label>Platform</label>
+      <select id="plat"><option>Instagram Reels</option><option>TikTok</option><option>YouTube Shorts</option></select>
     </div>
-
-    <div class="slabel">Settings</div>
-    <div class="r3">
-      <div class="fg"><label>Platform</label>
-        <select id="plat"><option>Instagram Reels</option><option>TikTok</option><option>YouTube Shorts</option></select>
-      </div>
-      <div class="fg"><label>Duration</label>
-        <select id="dur"><option>15–30 sec</option><option>30–60 sec</option><option>60–90 sec</option></select>
-      </div>
-      <div class="fg"><label>Cut Style</label>
-        <select id="cut">
-          <option value="slow">Slow cinematic cuts</option>
-          <option value="fast">Fast aggressive cuts</option>
-          <option value="mixed">Mixed — slow build then fast</option>
-          <option value="single">Single long take per scene</option>
-        </select>
-      </div>
+    <div class="fg"><label>Your Niche</label>
+      <input type="text" id="niche" value="Urban Fashion" placeholder="streetwear, nightlife…">
     </div>
-    <div class="r2">
-      <div class="fg"><label>Your Niche / Brand</label><input type="text" id="niche" value="Urban Fashion" placeholder="e.g. streetwear, nightlife, music"></div>
-      <div class="fg"><label>City / Location</label><input type="text" id="extra" placeholder="e.g. Tokyo, London, NYC"></div>
+    <div class="fg"><label>City / Location</label>
+      <input type="text" id="city" placeholder="Tokyo, London, NYC…">
     </div>
-
-    <button class="gbtn" id="gbtn" onclick="generate()"><span>🎬</span> Generate Cinematic Edit</button>
-
-    <div class="lwrap" id="lwrap">
-      <div class="lring"></div>
-      <div class="ltxt" id="ltxt">Crafting cinematic scenes…</div>
-      <div id="s1" class="lstep">🎬 Writing scene-by-scene visual worlds…</div>
-      <div id="s2" class="lstep">🎨 Assigning unique aesthetic to each scene…</div>
-      <div id="s3" class="lstep">🔍 Searching Pexels with cinematic queries…</div>
-      <div id="s4" class="lstep">🎯 Scoring clips by cinematography match…</div>
-      <div id="s5" class="lstep">✂️ Generating CapCut edit guide…</div>
-    </div>
-
-    <div class="sout" id="sout">
-      <div class="slabel" style="margin-bottom:10px;">Script + Edit Notes</div>
-      <div class="sb h-b"><div class="sbh">🎣 Hook / Opening<button class="cpb" onclick="cp('hT',this)">copy</button></div><div class="sbb" id="hT"></div></div>
-      <div class="sb v-b"><div class="sbh">📦 Narrative Arc<button class="cpb" onclick="cp('vT',this)">copy</button></div><div class="sbb" id="vT"></div></div>
-      <div class="sb vi-b"><div class="sbh">🎬 Director's Notes<button class="cpb" onclick="cp('viT',this)">copy</button></div><div class="sbb" id="viT"></div></div>
-      <div class="sb c-b"><div class="sbh">📢 Caption / Caption Hook<button class="cpb" onclick="cp('caT',this)">copy</button></div><div class="sbb" id="caT"></div></div>
-      <button class="cp-all" onclick="cpAll()">📋 Copy Everything</button>
+    <div class="fg"><label>Mood Word</label>
+      <input type="text" id="mood" placeholder="e.g. lost, free, raw…">
     </div>
   </div>
 
-  <!-- RIGHT: CINEMATIC SCENE WALL -->
-  <div class="rp">
-    <div class="rph">
-      <div class="rph-top">
-        <div class="rph-t">SCENES</div>
-        <div class="rph-s" id="rphS">Select aesthetic + generate</div>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-    <div class="vwall" id="vwall">
-      <div class="vempty">
-        <div class="vempty-ico">🎞</div>
-        <div class="vempty-t">Every Scene Hits Different</div>
-        <div class="vempty-s">
-          Pick an aesthetic world above.<br>
-          Each scene gets its own visual universe —<br>
-          different color grade, lighting, motion and<br>
-          shot type. Like teemu.jpeg / 777salty edits<br>
-          where every cut feels like a new dimension.
-        </div>
-      </div>
-    </div>
-  </div>
+  <button class="gbtn" id="gbtn" onclick="generate()">
+    <span>🎬</span> Find My Clip
+  </button>
+
+  <!-- OUTPUT -->
+  <div id="output"></div>
+
 </div>
 
 <script>
 const API = window.location.origin;
 
-// ── Aesthetic worlds ───────────────────────────────────────
-// Each world has scene-specific visual modifiers so consecutive
-// scenes feel completely different from each other
-const AESTHETIC_WORLDS = {
-  'cyberpunk': {
-    name: 'Cyberpunk',
-    baseKw: 'neon rain reflections city night dark',
-    sceneModifiers: [
-      { color:'teal neon', light:'backlit silhouette', motion:'slow motion', lens:'wide angle', queryPrefix:'neon rain' },
-      { color:'red orange neon', light:'fog harsh light', motion:'handheld shaky', lens:'close up', queryPrefix:'city smoke neon' },
-      { color:'purple blue neon', light:'led signage glow', motion:'timelapse', lens:'aerial drone', queryPrefix:'city aerial night' },
-      { color:'yellow white', light:'headlights', motion:'fast motion blur', lens:'street level', queryPrefix:'car lights speed' },
-    ]
-  },
-  'dark luxury': {
-    name: 'Dark Luxury',
-    baseKw: 'dark moody cinematic slow motion luxury',
-    sceneModifiers: [
-      { color:'deep black gold', light:'single spotlight', motion:'extreme slow motion', lens:'close up macro', queryPrefix:'luxury dark shadow' },
-      { color:'dark blue grey', light:'window light rays', motion:'slow pan', lens:'medium portrait', queryPrefix:'cinematic dark moody' },
-      { color:'black silver', light:'reflection surface', motion:'static locked off', lens:'wide symmetry', queryPrefix:'dark architecture minimal' },
-      { color:'warm amber black', light:'candle fire glow', motion:'slow zoom', lens:'shallow depth', queryPrefix:'fire smoke dark' },
-    ]
-  },
-  'film noir': {
-    name: 'Film Noir',
-    baseKw: 'film grain noir shadows smoke street',
-    sceneModifiers: [
-      { color:'black white high contrast', light:'venetian blind shadows', motion:'static', lens:'medium', queryPrefix:'shadows noir street' },
-      { color:'sepia grain', light:'single lamp post', motion:'slow walk', lens:'wide street', queryPrefix:'foggy street night lamp' },
-      { color:'black white grain', light:'rain window', motion:'reflection', lens:'close up', queryPrefix:'rain window reflection night' },
-      { color:'dark grey', light:'cigarette smoke', motion:'slow exhale', lens:'close macro', queryPrefix:'cigarette smoke dark close' },
-    ]
-  },
-  'golden hour': {
-    name: 'Golden Hour',
-    baseKw: 'golden warm light bokeh slow motion',
-    sceneModifiers: [
-      { color:'warm orange gold', light:'direct sun lens flare', motion:'slow motion', lens:'wide', queryPrefix:'golden hour sunset slow' },
-      { color:'warm yellow bokeh', light:'backlit silhouette', motion:'slow pan', lens:'portrait bokeh', queryPrefix:'silhouette golden light' },
-      { color:'amber warm', light:'dust particles light', motion:'floating particles', lens:'close macro', queryPrefix:'dust particles sunlight warm' },
-      { color:'orange red sky', light:'horizon glow', motion:'timelapse', lens:'wide landscape', queryPrefix:'sunset golden sky timelapse' },
-    ]
-  },
-  'underground': {
-    name: 'Underground',
-    baseKw: 'underground dark club crowd energy bass',
-    sceneModifiers: [
-      { color:'strobing white blue', light:'strobe flash', motion:'fast cuts', lens:'wide fisheye', queryPrefix:'club strobe crowd dark' },
-      { color:'red purple', light:'LED wash', motion:'slow crowd', lens:'crowd level', queryPrefix:'concert crowd slow motion' },
-      { color:'neon green', light:'DJ booth glow', motion:'zoom in', lens:'wide stage', queryPrefix:'dj booth neon dark' },
-      { color:'black flash', light:'darkness', motion:'motion blur', lens:'close hands', queryPrefix:'music bass hands dark' },
-    ]
-  },
-  'street grit': {
-    name: 'Street Grit',
-    baseKw: 'gritty street urban raw handheld',
-    sceneModifiers: [
-      { color:'desaturated grey', light:'overcast flat', motion:'handheld walk', lens:'wide street', queryPrefix:'street urban gritty walk' },
-      { color:'grain film look', light:'neon sign', motion:'static observe', lens:'medium portrait', queryPrefix:'street portrait grain neon' },
-      { color:'high contrast', light:'rain puddle reflection', motion:'slow motion rain', lens:'low angle', queryPrefix:'rain street reflection low' },
-      { color:'muted tones', light:'window light', motion:'slow pan', lens:'close texture', queryPrefix:'urban texture concrete close' },
-    ]
-  },
-  'minimal void': {
-    name: 'Minimal Void',
-    baseKw: 'minimal dark void space architecture',
-    sceneModifiers: [
-      { color:'pure black', light:'single light source', motion:'very slow pan', lens:'symmetry wide', queryPrefix:'minimal dark architecture symmetry' },
-      { color:'white void', light:'all white overexposed', motion:'static', lens:'geometric', queryPrefix:'minimal white space geometric' },
-      { color:'dark grey', light:'shadow line', motion:'shadow moving', lens:'abstract', queryPrefix:'shadow light abstract minimal' },
-      { color:'black white', light:'spotlight circle', motion:'slow zoom in', lens:'center composition', queryPrefix:'dark void minimal single light' },
-    ]
-  },
-  'retro wave': {
-    name: 'Retro Wave',
-    baseKw: 'retro synthwave neon purple pink 80s',
-    sceneModifiers: [
-      { color:'purple pink neon', light:'grid lines neon', motion:'slow pan', lens:'wide 80s', queryPrefix:'synthwave neon grid retro' },
-      { color:'pink magenta', light:'neon sign pink', motion:'zoom out', lens:'portrait', queryPrefix:'neon pink night portrait retro' },
-      { color:'electric blue purple', light:'fog neon blue', motion:'slow motion fog', lens:'wide', queryPrefix:'fog neon blue purple night' },
-      { color:'chrome pink', light:'sunset chrome', motion:'slow motion drive', lens:'car window', queryPrefix:'retro car drive sunset pink' },
-    ]
-  },
+// ── Aesthetic definitions ──────────────────────────────────
+const AESTHETICS = {
+  'cyberpunk':    { icon:'🌆', name:'Cyberpunk',    color:'teal neon', light:'rain reflections backlit', motion:'slow motion', searchBase:'neon rain city night reflections' },
+  'dark luxury':  { icon:'🖤', name:'Dark Luxury',  color:'black gold', light:'single spotlight dark', motion:'extreme slow motion', searchBase:'dark luxury moody cinematic' },
+  'film noir':    { icon:'🎞', name:'Film Noir',    color:'black white grain', light:'shadows harsh contrast', motion:'static or slow', searchBase:'noir shadows smoke street grain' },
+  'golden hour':  { icon:'🌅', name:'Golden Hour',  color:'warm amber gold', light:'sun flare backlit', motion:'slow motion', searchBase:'golden hour warm light bokeh' },
+  'underground':  { icon:'🎵', name:'Underground',  color:'strobe neon', light:'club dark flash', motion:'crowd energy', searchBase:'underground club dark crowd neon' },
+  'street grit':  { icon:'🏙', name:'Street Grit',  color:'desaturated grain', light:'overcast flat neon', motion:'handheld raw', searchBase:'gritty urban street raw night' },
+  'minimal void': { icon:'⬛', name:'Minimal Void', color:'pure black void', light:'single beam', motion:'very slow', searchBase:'minimal dark void architecture shadow' },
+  'retro wave':   { icon:'📼', name:'Retro Wave',   color:'purple pink neon', light:'grid synthwave', motion:'slow pan', searchBase:'synthwave neon retro 80s purple' },
 };
 
-// ── State ──────────────────────────────────────────────────
-let selectedAesthetic = AESTHETIC_WORLDS['cyberpunk'];
-let topic = { name:'Urban Life', icon:'🌆', kw:'city street urban neon night' };
-
+// ── Topics ─────────────────────────────────────────────────
 const TOPICS = [
-  {name:'Urban Life',icon:'🌆',kw:'city street urban neon night'},
-  {name:'Fashion',icon:'👗',kw:'fashion model style walk outfit'},
-  {name:'Music',icon:'🎵',kw:'music concert dj crowd festival'},
-  {name:'Nightlife',icon:'🌙',kw:'nightlife club neon bar party'},
-  {name:'Aesthetic',icon:'🎨',kw:'aesthetic cinematic minimal mood'},
-  {name:'Street Art',icon:'🖼',kw:'graffiti mural street art color'},
-  {name:'Architecture',icon:'🏙',kw:'architecture building skyline city'},
-  {name:'Subculture',icon:'🎭',kw:'subculture youth skate alternative'},
-  {name:'Travel',icon:'✈️',kw:'travel city rooftop explore adventure'},
-  {name:'Food & Culture',icon:'🍜',kw:'street food market culture dining'},
+  'Urban Life','Fashion','Music','Nightlife','Aesthetic',
+  'Street Art','Architecture','Subculture','Travel','Food'
 ];
+
+let aesKey   = 'cyberpunk';
+let topicName = 'Urban Life';
+let selectedClip = null;
 
 // Daily topic
 const dayOfYear = Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
-const dailyIdx  = dayOfYear % TOPICS.length;
+const dailyTopic = TOPICS[dayOfYear % TOPICS.length];
 document.querySelectorAll('.tp').forEach((el,i)=>{
-  if(i===dailyIdx){ el.classList.add('on','today'); topic=TOPICS[i]; }
+  if(TOPICS[i]===dailyTopic){
+    el.classList.add('on','today');
+    topicName = dailyTopic;
+  }
 });
 
-function selAes(el, key, icon, desc, kw) {
+function selAes(el, key){
   document.querySelectorAll('.aes').forEach(a=>a.classList.remove('on'));
-  el.classList.add('on');
-  selectedAesthetic = AESTHETIC_WORLDS[key];
+  el.classList.add('on'); aesKey=key;
 }
-function pick(el,name,icon,kw){
+function pick(el, name){
   document.querySelectorAll('.tp').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on'); topic={name,icon,kw};
+  el.classList.add('on'); topicName=name;
 }
 
-// ── Health check ───────────────────────────────────────────
+// ── Health ─────────────────────────────────────────────────
 async function checkHealth(){
   try{
     const d=await fetch(`${API}/health`).then(r=>r.json());
-    const badge=document.getElementById('badge');
-    const aiOk=d.ai_provider==='claude'?d.claude:d.groq;
+    const ok=d.ai_provider==='claude'?d.claude:d.groq;
     const prov=(d.ai_provider||'groq').toUpperCase();
-    if(d.status==='ok'&&d.pexels&&aiOk){
-      badge.className='badge ok';
-      document.getElementById('badgeTxt').textContent=`${prov} + Pexels ✓`;
-    } else {
-      badge.className='badge err';
-      document.getElementById('badgeTxt').textContent=`Missing: ${[!d.pexels&&'PEXELS_KEY',!aiOk&&(d.ai_provider==='claude'?'ANTHROPIC_KEY':'GROQ_KEY')].filter(Boolean).join(', ')}`;
-    }
-  }catch{ document.getElementById('badge').className='badge err'; document.getElementById('badgeTxt').textContent='Server unreachable'; }
+    const badge=document.getElementById('badge');
+    if(d.pexels&&ok){ badge.className='hbadge ok'; document.getElementById('badgeTxt').textContent=`${prov} + Pexels ✓`; }
+    else { badge.className='hbadge err'; document.getElementById('badgeTxt').textContent=`Missing keys`; }
+  }catch{ document.getElementById('badge').className='hbadge err'; document.getElementById('badgeTxt').textContent='Server offline'; }
 }
 checkHealth();
 
-// ── Steps ──────────────────────────────────────────────────
+// ── Loading steps ──────────────────────────────────────────
 let stmr;
-function startSteps(){
-  const ids=['s1','s2','s3','s4','s5']; let i=0;
-  ids.forEach(id=>document.getElementById(id).className='lstep');
+function showLoading(msg){
+  const out=document.getElementById('output');
+  out.innerHTML=`
+    <div class="lwrap">
+      <div class="lring"></div>
+      <div class="ltxt">${msg}</div>
+      <div id="s1" class="lstep">🎬 Crafting the perfect scenario…</div>
+      <div id="s2" class="lstep">🔍 Searching Pexels with 4 specific queries…</div>
+      <div id="s3" class="lstep">🎯 Picking best matching clips…</div>
+    </div>`;
+  let i=0; const ids=['s1','s2','s3'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.className='lstep'; });
   stmr=setInterval(()=>{
-    if(i>0)document.getElementById(ids[i-1]).className='lstep ok';
-    if(i<ids.length){document.getElementById(ids[i]).className='lstep act';i++;}
+    const prev=ids[i-1],curr=ids[i];
+    if(prev){ const el=document.getElementById(prev); if(el) el.className='lstep ok'; }
+    if(curr){ const el=document.getElementById(curr); if(el) el.className='lstep act'; i++; }
     else clearInterval(stmr);
-  },900);
+  },1000);
 }
-function setProgress(p){document.getElementById('progressFill').style.width=p+'%';}
 
 // ── AI call ────────────────────────────────────────────────
-async function callAI(prompt,system){
+async function callAI(prompt){
   const r=await fetch(`${API}/api/ai`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({max_tokens:2000,
-      system:system||'You are a cinematic video director and editor. Respond ONLY with valid JSON. No markdown, no backticks.',
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      max_tokens:1200,
+      system:'You are a cinematic Instagram video curator. Respond ONLY with valid JSON. No markdown, no backticks, no extra text.',
       messages:[{role:'user',content:prompt}]
     })
   });
@@ -523,322 +376,238 @@ async function callAI(prompt,system){
   if(d.error) throw new Error(typeof d.error==='string'?d.error:(d.error.message||JSON.stringify(d.error)));
   const raw=(d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim();
   try{return JSON.parse(raw);}
-  catch(e){throw new Error('AI returned invalid JSON: '+raw.slice(0,150));}
+  catch(e){throw new Error('Bad JSON: '+raw.slice(0,120));}
 }
 
-// ── Score video for scene ──────────────────────────────────
-function scoreForScene(video, scene) {
-  let s = 0;
-  const dur = video.duration||0;
-  const target = scene.durationSec||6;
-  // Duration match
-  if(Math.abs(dur-target)<=2) s+=5;
-  else if(Math.abs(dur-target)<=5) s+=3;
-  else if(Math.abs(dur-target)<=10) s+=1;
-  if(dur<3) s-=4;
-  if(dur>50) s-=2;
-  // Portrait preferred for reels
-  if(video.h>video.w) s+=3;
-  // Has file
-  if(video.file) s+=2;
-  // Motion match via duration heuristic
-  if(scene.motion==='slow motion'&&dur>=5&&dur<=20) s+=2;
-  if(scene.motion==='fast cuts'&&dur<=8) s+=2;
-  if(scene.motion==='timelapse'&&dur>=3&&dur<=15) s+=1;
+// ── Pexels search ──────────────────────────────────────────
+async function searchPexels(query, page){
+  const r=await fetch(`${API}/api/videos?q=${encodeURIComponent(query)}&n=3`+(page?`&page=${page}`:''));
+  const d=await r.json();
+  if(d.error) throw new Error(d.error);
+  return d.videos||[];
+}
+
+// ── Score clip ─────────────────────────────────────────────
+function scoreClip(v){
+  let s=0;
+  if(v.h>v.w) s+=4;                              // portrait = reel ready
+  if(v.duration>=5&&v.duration<=25) s+=3;
+  else if(v.duration>25&&v.duration<=40) s+=1;
+  if(v.duration<3) s-=4;
+  if(v.file) s+=2;
   return s;
 }
 
 // ── MAIN GENERATE ──────────────────────────────────────────
 async function generate(){
   hideErr();
-  const niche   = document.getElementById('niche').value||'Urban Fashion';
-  const plat    = document.getElementById('plat').value;
-  const dur     = document.getElementById('dur').value;
-  const cutStyle= document.getElementById('cut').value;
-  const extra   = document.getElementById('extra').value;
-  const aes     = selectedAesthetic;
+  selectedClip=null;
+  const aes   = AESTHETICS[aesKey];
+  const niche = document.getElementById('niche').value||'Urban Fashion';
+  const city  = document.getElementById('city').value||'';
+  const mood  = document.getElementById('mood').value||'';
+  const plat  = document.getElementById('plat').value;
 
   document.getElementById('gbtn').disabled=true;
-  document.getElementById('lwrap').style.display='block';
-  document.getElementById('sout').className='sout';
-  document.getElementById('vwall').innerHTML='';
-  document.getElementById('rphS').textContent='Generating…';
-  document.getElementById('ltxt').textContent=`${aes.name} · ${cutStyle} cuts`;
-  setProgress(5);
-  startSteps();
-
-  // Build scene modifier context for AI
-  const modCtx = aes.sceneModifiers.map((m,i)=>
-    `Scene ${i+1}: color=${m.color}, lighting=${m.light}, motion=${m.motion}, lens=${m.lens}, query prefix="${m.queryPrefix}"`
-  ).join('\n');
+  showLoading(`Finding the perfect ${aes.name} clip…`);
 
   try {
-    // ── STEP 1: Generate cinematic script ─────────────────
-    const script = await callAI(`
-You are a cinematic video director making a ${aes.name} aesthetic edit for ${niche}.
-Think: dark, moody, every scene feels like a completely different visual world.
-Reference: teemu.jpeg, 777salty instagram style.
+    // ── Step 1: AI picks ONE scenario + 4 search queries ─
+    const data = await callAI(`
+You are curating a cinematic single-clip Instagram Reel in ${aes.name} aesthetic.
+Think: teemu.jpeg, 777salty, dark aesthetic pages that post ONE perfect cinematic clip per post.
 
-TOPIC: ${topic.name}
-PLATFORM: ${plat}
-TOTAL DURATION: ${dur}
-CUT STYLE: ${cutStyle}
-LOCATION CONTEXT: ${extra||'urban city'}
 AESTHETIC: ${aes.name}
+VISUAL STYLE: ${aes.color} tones, ${aes.light} lighting, ${aes.motion} motion
+TOPIC: ${topicName}
+NICHE/BRAND: ${niche}
+LOCATION HINT: ${city||'urban city'}
+MOOD WORD: ${mood||'cinematic'}
+PLATFORM: ${plat}
 
-SCENE VISUAL WORLDS (each scene MUST use its assigned world):
-${modCtx}
+Generate ONE specific cinematic scenario — a single place/moment that fits this aesthetic perfectly.
+Then generate 4 DIFFERENT ultra-specific Pexels search queries to find clips for this scenario.
+Each query must approach the same scenario from a different visual angle so we get variety to choose from.
 
-Return ONLY valid JSON:
+Return ONLY this JSON:
 {
-  "hook":      "cinematic opening line — mysterious, atmospheric, no generic phrases",
-  "narrative": "the emotional arc of this edit — what feeling builds across the 4 scenes",
-  "direction": "director's notes: exact timing, transitions, music mood suggestion",
-  "caption":   "instagram caption — short, dark, poetic. Max 2 sentences + 5 hashtags",
-  "scenes": [
-    {
-      "label":        "Scene 1 label",
-      "world":        "Name this scene's visual world in 3-4 words (e.g. 'Neon rain void')",
-      "vibe":         "One evocative sentence describing exactly what the viewer feels",
-      "color":        "${aes.sceneModifiers[0].color}",
-      "light":        "${aes.sceneModifiers[0].light}",
-      "motion":       "${aes.sceneModifiers[0].motion}",
-      "lens":         "${aes.sceneModifiers[0].lens}",
-      "durationSec":  5,
-      "capcut":       "CapCut note: e.g. 'speed ramp to 0.3x at 2s, add grain filter'",
-      "query":        "ULTRA specific Pexels query using prefix '${aes.sceneModifiers[0].queryPrefix}' + scene context",
-      "fallbacks":    ["backup query 1", "backup query 2"]
-    },
-    {
-      "label":        "Scene 2 label",
-      "world":        "Different visual world name",
-      "vibe":         "Different feeling from scene 1",
-      "color":        "${aes.sceneModifiers[1].color}",
-      "light":        "${aes.sceneModifiers[1].light}",
-      "motion":       "${aes.sceneModifiers[1].motion}",
-      "lens":         "${aes.sceneModifiers[1].lens}",
-      "durationSec":  7,
-      "capcut":       "CapCut note for this scene",
-      "query":        "ULTRA specific query using '${aes.sceneModifiers[1].queryPrefix}'",
-      "fallbacks":    ["backup 1", "backup 2"]
-    },
-    {
-      "label":        "Scene 3 label",
-      "world":        "Another different world",
-      "vibe":         "Different feeling from scenes 1 and 2",
-      "color":        "${aes.sceneModifiers[2].color}",
-      "light":        "${aes.sceneModifiers[2].light}",
-      "motion":       "${aes.sceneModifiers[2].motion}",
-      "lens":         "${aes.sceneModifiers[2].lens}",
-      "durationSec":  6,
-      "capcut":       "CapCut note",
-      "query":        "ULTRA specific query using '${aes.sceneModifiers[2].queryPrefix}'",
-      "fallbacks":    ["backup 1", "backup 2"]
-    },
-    {
-      "label":        "Scene 4 label",
-      "world":        "Final visual world — should feel like resolution",
-      "vibe":         "Closing feeling",
-      "color":        "${aes.sceneModifiers[3].color}",
-      "light":        "${aes.sceneModifiers[3].light}",
-      "motion":       "${aes.sceneModifiers[3].motion}",
-      "lens":         "${aes.sceneModifiers[3].lens}",
-      "durationSec":  4,
-      "capcut":       "CapCut note",
-      "query":        "ULTRA specific query using '${aes.sceneModifiers[3].queryPrefix}'",
-      "fallbacks":    ["backup 1", "backup 2"]
-    }
+  "scenarioTitle":  "3-5 word evocative title of the scenario (e.g. 'Neon Rain Empty Street')",
+  "scenarioDesc":   "2 sentences — what is happening in this clip, what does the viewer feel",
+  "color":          "color grade description",
+  "light":          "lighting description",
+  "motion":         "camera motion",
+  "lens":           "shot type",
+  "caption":        "1-2 line Instagram caption — short, poetic, no emojis overload. Max 3 hashtags.",
+  "captionAlt":     "alternative caption option",
+  "capcut":         "One specific CapCut tip: color grade, speed ramp, or effect to apply",
+  "queries": [
+    "ultra specific query 1 — based on '${aes.searchBase}'",
+    "ultra specific query 2 — different angle of same scenario",
+    "ultra specific query 3 — different element of same scenario",
+    "ultra specific query 4 — wider or tighter version"
   ]
 }
 
-RULES:
-- Each scene's "world" and "vibe" MUST feel completely different from adjacent scenes
-- Queries must be ultra-specific visual descriptions, not generic (never "person walking" or "city street")
-- The edit should feel like a journey through 4 different dimensions of the ${aes.name} world
-- Make it feel like a music video, not a social media post`);
+Query rules:
+- All 4 must relate to the SAME scenario/place
+- Each must feel different (different camera angle, element, or composition)
+- Ultra specific — describe the exact visual (NOT "person walking at night")
+- Based on the ${aes.name} aesthetic keywords: ${aes.searchBase}${city?' in '+city:''}${mood?' '+mood+' mood':''}`);
 
-    setProgress(30);
+    clearInterval(stmr);
 
-    // Show script
-    document.getElementById('hT').textContent  = script.hook      ||'';
-    document.getElementById('vT').textContent  = script.narrative  ||'';
-    document.getElementById('viT').textContent = script.direction  ||'';
-    document.getElementById('caT').textContent = script.caption    ||'';
-    document.getElementById('sout').className  = 'sout show';
+    // ── Step 2: Search Pexels with all 4 queries in parallel
+    const queries = data.queries||[];
+    const searches = await Promise.all(
+      queries.map((q,i) => searchPexels(q, Math.floor(Math.random()*4)+1).catch(()=>[]))
+    );
 
-    // ── STEP 2: Build skeleton cards ──────────────────────
-    const wall   = document.getElementById('vwall');
-    wall.innerHTML='';
-    const scenes = script.scenes||[];
-    const colors = ['#FF3CAC','#4ECDC4','#FFE566','#7B61FF'];
-
-    const cards = scenes.map((sc,i)=>{
-      const card=document.createElement('div');
-      card.className='scene-card';
-      card.innerHTML=`
-        <div class="sc-head">
-          <div class="sc-left">
-            <div class="sc-num" style="color:${colors[i%4]}">SCENE ${i+1} — ${sc.label||''}</div>
-            <div class="sc-world">${sc.world||''}</div>
-            <div class="sc-vibe">${sc.vibe||''}</div>
-          </div>
-          <div class="sc-status" id="st${i}">🔍 searching…</div>
-        </div>
-        <div class="sc-skeleton"></div>`;
-      wall.appendChild(card);
-      return card;
+    // Flatten + deduplicate + score
+    const seen = new Set();
+    let allClips = searches.flat().filter(v=>{
+      if(!v.file||seen.has(v.id)) return false;
+      seen.add(v.id); return true;
     });
 
-    document.getElementById('rphS').textContent=`Matching ${scenes.length} scenes…`;
+    // Sort by score, take top 4
+    allClips = allClips.sort((a,b)=>scoreClip(b)-scoreClip(a)).slice(0,4);
 
-    // ── STEP 3: Search + score videos for each scene ──────
-    let found=0;
-    await Promise.all(scenes.map(async(sc,i)=>{
-      setProgress(30+(i/scenes.length)*65);
-      const queries=[sc.query,...(sc.fallbacks||[])].filter(Boolean);
-      let allVideos=[];
+    // If we got fewer than 4, pad with a broader search
+    if(allClips.length<4){
+      const extra = await searchPexels(aes.searchBase+(city?' '+city:''), 1).catch(()=>[]);
+      extra.forEach(v=>{ if(!seen.has(v.id)&&v.file){ seen.add(v.id); allClips.push(v); } });
+      allClips = allClips.slice(0,4);
+    }
 
-      // Try each query until we have enough
-      for(const q of queries){
-        const fullQ=extra?`${q} ${extra}`:q;
-        try{
-          const r=await fetch(`${API}/api/match-scene`,{
-            method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({scene:sc,extra})
-          });
-          const data=await r.json();
-          if(data.picked) allVideos.push(data.picked,...(data.alts||[]));
-          if(allVideos.length>=4) break;
-        }catch(e){ console.warn('Scene match err:',e.message); }
-      }
+    // ── Step 3: Render ────────────────────────────────────
+    renderResult(data, allClips, aes);
 
-      // Deduplicate
-      const seen=new Set();
-      allVideos=allVideos.filter(v=>{ if(!v||!v.file||seen.has(v.id))return false; seen.add(v.id); return true; });
-
-      const picked=allVideos.length?allVideos.sort((a,b)=>scoreForScene(b,sc)-scoreForScene(a,sc))[0]:null;
-      const alts=allVideos.filter(v=>picked&&v.id!==picked.id).slice(0,4);
-      const card=cards[i];
-      const color=colors[i%4];
-      const mod=aes.sceneModifiers[i%aes.sceneModifiers.length];
-
-      if(!picked){
-        document.getElementById(`st${i}`).textContent='⚠️ no clip';
-        document.getElementById(`st${i}`).className='sc-status err';
-        card.innerHTML=`
-          <div class="sc-head">
-            <div class="sc-left">
-              <div class="sc-num" style="color:${color}">SCENE ${i+1} — ${sc.label||''}</div>
-              <div class="sc-world">${sc.world||''}</div>
-              <div class="sc-vibe">${sc.vibe||''}</div>
-            </div>
-            <div class="sc-status err">⚠️ no clip</div>
-          </div>
-          <div style="padding:14px;font-size:12px;color:var(--muted);">
-            Try searching manually:<br>
-            <a href="https://www.pexels.com/search/videos/${encodeURIComponent(sc.query||'')}/" target="_blank"
-               style="color:var(--accent);text-decoration:none;">🔍 "${sc.query}" on Pexels →</a>
-          </div>`;
-        return;
-      }
-
-      found++;
-      document.getElementById(`st${i}`).textContent='✅ matched';
-      document.getElementById(`st${i}`).className='sc-status ok';
-
-      const portrait=picked.h>picked.w?'9:16 ✓':'16:9';
-      const altHTML=alts.map((v,ai)=>`
-        <img class="sw-t" src="${v.thumb}"
-             data-file="${v.file||''}" data-url="${v.url||''}"
-             data-dur="${v.duration}" data-ph="${v.photographer||''}"
-             onclick="swapVid(this,${i})" onerror="this.style.display='none'">`).join('');
-
-      card.innerHTML=`
-        <div class="sc-head">
-          <div class="sc-left">
-            <div class="sc-num" style="color:${color}">SCENE ${i+1} — ${sc.label||''}</div>
-            <div class="sc-world">${sc.world||''}</div>
-            <div class="sc-vibe">${sc.vibe||''}</div>
-          </div>
-          <div class="sc-status ok">✅ matched</div>
-        </div>
-        <div class="cin-meta">
-          <span class="cm-pill color">🎨 ${mod.color}</span>
-          <span class="cm-pill light">💡 ${mod.light}</span>
-          <span class="cm-pill motion">🎬 ${mod.motion}</span>
-          <span class="cm-pill lens">📷 ${mod.lens}</span>
-          <span class="cm-pill dur">⏱ ${sc.durationSec||'?'}s</span>
-        </div>
-        <div class="vid-area" onclick="togglePlay(${i})">
-          <video id="vid${i}" src="${picked.file||''}" poster="${picked.thumb||''}"
-                 loop muted playsinline preload="metadata"
-                 style="width:100%;height:100%;object-fit:cover;"></video>
-          <div class="vid-ov"><div class="play-ic" id="pic${i}">▶</div></div>
-        </div>
-        <div class="cc-guide">
-          <b>✂️ CapCut Guide</b>
-          ${sc.capcut||'Import clip → trim to '+sc.durationSec+'s → apply color grade'}
-        </div>
-        ${alts.length?`<div class="swap-lbl">Swap (${alts.length} alts)</div><div class="swap-bar">${altHTML}</div>`:''}
-        <div class="vid-info">
-          <div class="vid-meta">
-            <div class="vid-title">${sc.world||sc.label||''}</div>
-            <div class="vid-sub" id="vsub${i}">
-              <span>⏱ ${picked.duration}s</span>
-              <span>📐 ${portrait}</span>
-              <span>📸 ${picked.photographer||'Pexels'}</span>
-            </div>
-          </div>
-          <div class="vid-acts">
-            <a href="${picked.url||'#'}" target="_blank" id="vpx${i}" class="vbtn">↗ Pexels</a>
-            <a href="${picked.file||picked.url||'#'}" download id="vdl${i}" class="vbtn hi">↓ Download</a>
-          </div>
-        </div>`;
-    }));
-
-    setProgress(100);
-    document.getElementById('rphS').textContent=`${found}/${scenes.length} scenes matched`;
-
-  }catch(e){
-    console.error(e);
-    showErr(e.message||'Unknown error');
-    document.getElementById('rphS').textContent='Error';
-    setProgress(0);
-  }finally{
+  } catch(e){
     clearInterval(stmr);
+    console.error(e);
+    showErr(e.message||'Something went wrong');
+    document.getElementById('output').innerHTML='';
+  } finally {
     document.getElementById('gbtn').disabled=false;
-    document.getElementById('lwrap').style.display='none';
   }
 }
 
-function togglePlay(i){
-  const v=document.getElementById('vid'+i),p=document.getElementById('pic'+i);
-  if(!v)return; if(v.paused){v.play();if(p)p.textContent='⏸';}else{v.pause();if(p)p.textContent='▶';}
+// ── RENDER ─────────────────────────────────────────────────
+function renderResult(data, clips, aes){
+  const out = document.getElementById('output');
+
+  const clipsHTML = clips.length ? clips.map((v,i)=>`
+    <div class="clip-card" id="clip${i}" onclick="selectClip(${i})">
+      <div class="clip-thumb">
+        <video id="cvid${i}" src="${v.file||''}" poster="${v.thumb||''}"
+               loop muted playsinline preload="metadata"
+               style="width:100%;height:100%;object-fit:cover;"></video>
+        <div class="clip-overlay">
+          <div class="clip-play" onclick="toggleVid(event,${i})">▶</div>
+        </div>
+        <div class="clip-num">${i+1}</div>
+        <div class="selected-badge">SELECTED</div>
+      </div>
+      <div class="clip-info">
+        <div class="clip-dur">
+          <span>⏱ ${v.duration}s</span>
+          <span>📐 ${v.h>v.w?'9:16 ✓':'16:9'}</span>
+        </div>
+        <div class="clip-ph">📸 ${v.photographer||'Pexels'}</div>
+      </div>
+    </div>`).join('') : `<div style="padding:20px;color:var(--muted);font-size:12px;">
+      No clips found. Try a different aesthetic or topic.
+    </div>`;
+
+  out.innerHTML=`
+    <div class="scenario">
+      <div class="scenario-head">
+        <div class="scenario-aes">${aes.icon} ${aes.name} Aesthetic</div>
+        <div class="scenario-world">${data.scenarioTitle||'Cinematic Moment'}</div>
+        <div class="scenario-desc">${data.scenarioDesc||''}</div>
+        <div class="scenario-meta">
+          <span class="smeta color">🎨 ${data.color||aes.color}</span>
+          <span class="smeta light">💡 ${data.light||aes.light}</span>
+          <span class="smeta motion">🎬 ${data.motion||aes.motion}</span>
+          <span class="smeta lens">📷 ${data.lens||''}</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-block">
+          <label>Caption <button class="copy-inline" onclick="cpText('${escQ(data.caption||'')}',this)">copy</button></label>
+          <p>${data.caption||''}</p>
+          <p style="margin-top:8px;opacity:.6;font-size:11px;">${data.captionAlt||''}</p>
+        </div>
+        <div class="info-block">
+          <label>✂️ CapCut Tip</label>
+          <p>${data.capcut||'Import → trim to best 10s → add color grade matching the aesthetic'}</p>
+        </div>
+      </div>
+
+      <div class="clips-label">
+        <span>Pick Your Clip — 4 Options</span>
+        <span class="clips-count">${clips.length} clips found</span>
+      </div>
+      <div class="clips-grid">${clipsHTML}</div>
+
+      <div class="dl-section" id="dlSection">
+        <button class="dl-btn" id="dlBtn" onclick="downloadSelected()" disabled>
+          ↓ Download Selected Clip
+        </button>
+        <button class="view-btn" id="viewBtn" onclick="viewOnPexels()" disabled>
+          ↗ View on Pexels
+        </button>
+        <button class="regen-btn" onclick="generate()">🔄 New Options</button>
+      </div>
+    </div>`;
+
+  // Store clip data for download
+  window._clips = clips;
 }
-function swapVid(thumb,i){
-  thumb.closest('.swap-bar').querySelectorAll('.sw-t').forEach(t=>t.classList.remove('sel'));
-  thumb.classList.add('sel');
-  const v=document.getElementById('vid'+i);
-  if(!v||!thumb.dataset.file)return;
-  const playing=!v.paused; v.src=thumb.dataset.file; v.load(); if(playing)v.play();
-  const sub=document.getElementById('vsub'+i);
-  if(sub)sub.innerHTML=`<span>⏱ ${thumb.dataset.dur}s</span><span>📸 ${thumb.dataset.ph}</span>`;
-  const dl=document.getElementById('vdl'+i);if(dl)dl.href=thumb.dataset.file;
-  const px=document.getElementById('vpx'+i);if(px)px.href=thumb.dataset.url||'#';
+
+// ── Clip selection ─────────────────────────────────────────
+function selectClip(i){
+  document.querySelectorAll('.clip-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('clip'+i)?.classList.add('selected');
+  selectedClip=i;
+  const dlBtn=document.getElementById('dlBtn');
+  const viewBtn=document.getElementById('viewBtn');
+  if(dlBtn) dlBtn.disabled=false;
+  if(viewBtn) viewBtn.disabled=false;
 }
-function showErr(msg){document.getElementById('errMsg').textContent=msg;document.getElementById('errBanner').className='err-banner show';}
-function hideErr(){document.getElementById('errBanner').className='err-banner';}
-function cp(id,btn){
-  navigator.clipboard.writeText(document.getElementById(id).textContent);
-  btn.textContent='done!';setTimeout(()=>btn.textContent='copy',1200);
+
+function toggleVid(e, i){
+  e.stopPropagation();
+  const v=document.getElementById('cvid'+i);
+  if(!v) return;
+  if(v.paused){ v.play(); e.currentTarget.textContent='⏸'; }
+  else { v.pause(); e.currentTarget.textContent='▶'; }
+  selectClip(i);
 }
-function cpAll(){
-  const ids=['hT','vT','viT','caT'];
-  const lbls=['🎣 HOOK','📦 NARRATIVE','🎬 DIRECTION','📝 CAPTION'];
-  navigator.clipboard.writeText(ids.map((id,i)=>lbls[i]+'\n'+document.getElementById(id).textContent).join('\n\n---\n\n'));
-  const b=document.querySelector('.cp-all');
-  b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy Everything',1600);
+
+function downloadSelected(){
+  if(selectedClip===null||!window._clips) return;
+  const clip=window._clips[selectedClip];
+  if(!clip?.file) return;
+  const a=document.createElement('a');
+  a.href=clip.file; a.download=`reelos-clip-${Date.now()}.mp4`; a.click();
 }
+
+function viewOnPexels(){
+  if(selectedClip===null||!window._clips) return;
+  const clip=window._clips[selectedClip];
+  if(clip?.url) window.open(clip.url,'_blank');
+}
+
+// ── Utils ──────────────────────────────────────────────────
+function escQ(s){ return (s||'').replace(/'/g,"\\'").replace(/\n/g,' '); }
+function cpText(txt,btn){
+  navigator.clipboard.writeText(txt.replace(/\\'/g,"'"));
+  btn.textContent='done!'; setTimeout(()=>btn.textContent='copy',1200);
+}
+function showErr(msg){document.getElementById('errMsg').textContent=msg;document.getElementById('errBox').className='err show';}
+function hideErr(){document.getElementById('errBox').className='err';}
 </script>
 </body>
 </html>

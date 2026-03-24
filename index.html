@@ -151,6 +151,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
 .clip-dur{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);
   display:flex;gap:8px;margin-bottom:4px;}
 .clip-ph{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.q-badge{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;
+  padding:2px 6px;border-radius:4px;font-weight:700;border:1px solid var(--border);}
+.q-badge.uhd{background:rgba(255,60,172,.15);border-color:rgba(255,60,172,.4);color:var(--accent);}
+.q-badge.hd{background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.3);color:var(--green);}
+.q-badge.sd{background:rgba(255,229,102,.08);border-color:rgba(255,229,102,.2);color:var(--yellow);}
 
 /* SKELETON CLIP */
 .clip-skeleton{aspect-ratio:9/16;
@@ -512,8 +517,9 @@ function renderResult(data, clips, aes){
         <div class="clip-dur">
           <span>⏱ ${v.duration}s</span>
           <span>📐 ${v.h>v.w?'9:16 ✓':'16:9'}</span>
+          <span class="q-badge ${(v.quality||"").startsWith("4K")?"uhd":(v.quality||"").startsWith("HD")?"hd":"sd"}">${v.quality||"SD"}</span>
         </div>
-        <div class="clip-ph">📸 ${v.photographer||'Pexels'}</div>
+        <div class="clip-ph">📸 ${v.photographer||'Pexels'} · ${v.fileWidth||v.w||"?"}px wide</div>
       </div>
     </div>`).join('') : `<div style="padding:20px;color:var(--muted);font-size:12px;">
       No clips found. Try a different aesthetic or topic.

@@ -86,20 +86,42 @@ async function callAI(messages, system, maxTokens) {
   return AI_PROVIDER==='claude' ? callClaude(messages,system,maxTokens) : callGroq(messages,system,maxTokens);
 }
 
+// ── Pick highest quality video file ──────────────────────────
+// Priority: 4K (2160p) → HD (1080p) → qhd (1440p) → SD → first available
+function pickBestFile(files) {
+  if (!files || !files.length) return null;
+  // Sort by width descending — widest = highest resolution
+  const sorted = [...files].sort((a, b) => (b.width||0) - (a.width||0));
+  // Prefer file with actual download link
+  const withLink = sorted.filter(f => f.link);
+  return withLink[0]?.link || sorted[0]?.link || null;
+}
+
+// ── Pick best thumbnail — highest res ─────────────────────
+function pickBestThumb(v) {
+  // Pexels image field is already the best thumbnail
+  return v.image || null;
+}
+
 // ── Pexels search ──────────────────────────────────────────
 async function searchPexels(query, n, page) {
   if (!PEXELS_KEY) return [];
   const pg = page || (Math.floor(Math.random()*5)+1);
-  const qs = new URLSearchParams({ query, per_page:n, size:'medium', page:pg });
+  const qs = new URLSearchParams({ query, per_page:n, page:pg }); // no size filter = gets 4K results
   try {
     const data = await httpsGet('api.pexels.com', `/videos/search?${qs}`, { Authorization:PEXELS_KEY });
     return (data.videos||[]).map(v=>({
       id:'px_'+v.id, source:'Pexels',
       url:v.url, duration:v.duration, thumb:v.image,
-      file:v.video_files?.find(f=>f.quality==='sd'&&f.width<=1280)?.link||v.video_files?.[0]?.link,
+      file: pickBestFile(v.video_files),  // picks 4K > HD > SD
       photographer:v.user?.name||'Pexels',
       w:v.width, h:v.height,
       tags: v.tags || [],
+      quality: pickBestFile(v.video_files) ? 
+        (v.video_files?.find(f=>f.link===pickBestFile(v.video_files))?.width >= 3840 ? '4K' :
+         v.video_files?.find(f=>f.link===pickBestFile(v.video_files))?.width >= 1920 ? 'HD 1080p' :
+         v.video_files?.find(f=>f.link===pickBestFile(v.video_files))?.width >= 1280 ? 'HD 720p' : 'SD') : 'SD',
+      fileWidth: v.video_files?.find(f=>f.link===pickBestFile(v.video_files))?.width || v.width,
     }));
   } catch(e) { console.warn('[Pexels]',e.message); return []; }
 }

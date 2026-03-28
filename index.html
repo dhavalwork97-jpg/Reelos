@@ -117,6 +117,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
   display:flex;align-items:center;justify-content:space-between;}
 .clips-count{color:var(--green);}
 .clips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 16px;}
+@media(min-width:700px){.clips-grid.many{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:1000px){.clips-grid.many{grid-template-columns:repeat(4,1fr);}}
 
 /* CLIP CARD */
 .clip-card{background:var(--surface);border:2px solid var(--border);border-radius:10px;
@@ -141,6 +143,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
   background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
   border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:2px 8px;}
 
+.src-chip{position:absolute;bottom:8px;left:8px;font-family:'Space Mono',monospace;
+  font-size:7px;text-transform:uppercase;letter-spacing:1px;padding:2px 6px;
+  border-radius:4px;backdrop-filter:blur(6px);}
+.src-chip.Pexels{background:rgba(5,191,113,.6);color:#fff;}
+.src-chip.Pixabay{background:rgba(255,229,102,.7);color:#000;}
 .selected-badge{position:absolute;top:8px;right:8px;
   background:var(--accent);color:#fff;font-family:'Space Mono',monospace;
   font-size:8px;letter-spacing:1px;text-transform:uppercase;
@@ -278,6 +285,36 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
       <input type="text" id="mood" placeholder="e.g. lost, free, raw…">
     </div>
   </div>
+  <div class="settings-row" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:24px;">
+    <div class="fg">
+      <label>Min Clip Length</label>
+      <select id="minDur">
+        <option value="0">Any length</option>
+        <option value="15">15 sec+</option>
+        <option value="30" selected>30 sec+</option>
+        <option value="45">45 sec+</option>
+        <option value="60">60 sec+</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Max Clip Length</label>
+      <select id="maxDur">
+        <option value="0">Any length</option>
+        <option value="30">Up to 30 sec</option>
+        <option value="60" selected>Up to 60 sec</option>
+        <option value="90">Up to 90 sec</option>
+        <option value="120">Up to 2 min</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Results to Show</label>
+      <select id="clipCount">
+        <option value="4">4 clips</option>
+        <option value="8" selected>8 clips</option>
+        <option value="12">12 clips</option>
+      </select>
+    </div>
+  </div>
 
   <button class="gbtn" id="gbtn" onclick="generate()">
     <span>🎬</span> Find My Clip
@@ -384,123 +421,156 @@ async function callAI(prompt){
   catch(e){throw new Error('Bad JSON: '+raw.slice(0,120));}
 }
 
-// ── Pexels search ──────────────────────────────────────────
-async function searchPexels(query, page){
-  const r=await fetch(`${API}/api/videos?q=${encodeURIComponent(query)}&n=3`+(page?`&page=${page}`:''));
-  const d=await r.json();
-  if(d.error) throw new Error(d.error);
-  return d.videos||[];
-}
-
-// ── Score clip ─────────────────────────────────────────────
-function scoreClip(v){
-  let s=0;
-  if(v.h>v.w) s+=4;                              // portrait = reel ready
-  if(v.duration>=5&&v.duration<=25) s+=3;
-  else if(v.duration>25&&v.duration<=40) s+=1;
-  if(v.duration<3) s-=4;
-  if(v.file) s+=2;
-  return s;
+// ── Search videos via server (Pexels + Pixabay) ───────────
+async function searchVideos(query, minDur, maxDur, page) {
+  const params = new URLSearchParams({
+    q:      query,
+    n:      '15',
+    minDur: minDur || '0',
+    maxDur: maxDur || '0',
+  });
+  if (page) params.set('page', page);
+  const r = await fetch(`${API}/api/videos?${params}`);
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return d.videos || [];
 }
 
 // ── MAIN GENERATE ──────────────────────────────────────────
 async function generate(){
   hideErr();
-  selectedClip=null;
-  const aes   = AESTHETICS[aesKey];
-  const niche = document.getElementById('niche').value||'Urban Fashion';
-  const city  = document.getElementById('city').value||'';
-  const mood  = document.getElementById('mood').value||'';
-  const plat  = document.getElementById('plat').value;
+  selectedClip = null;
+  const aes      = AESTHETICS[aesKey];
+  const niche    = document.getElementById('niche').value    || 'Urban Fashion';
+  const city     = document.getElementById('city').value     || '';
+  const mood     = document.getElementById('mood').value     || '';
+  const plat     = document.getElementById('plat').value;
+  const minDur   = parseInt(document.getElementById('minDur').value)   || 0;
+  const maxDur   = parseInt(document.getElementById('maxDur').value)   || 0;
+  const clipCount= parseInt(document.getElementById('clipCount').value) || 8;
 
-  document.getElementById('gbtn').disabled=true;
+  document.getElementById('gbtn').disabled = true;
   showLoading(`Finding the perfect ${aes.name} clip…`);
 
   try {
-    // ── Step 1: AI picks ONE scenario + 4 search queries ─
+    // ── Step 1: AI generates scenario + 6 search queries ──
     const data = await callAI(`
 You are curating a cinematic single-clip Instagram Reel in ${aes.name} aesthetic.
-Think: teemu.jpeg, 777salty, dark aesthetic pages that post ONE perfect cinematic clip per post.
+Think: teemu.jpeg, 777salty — dark aesthetic pages that post ONE perfect cinematic clip per post.
 
 AESTHETIC: ${aes.name}
 VISUAL STYLE: ${aes.color} tones, ${aes.light} lighting, ${aes.motion} motion
 TOPIC: ${topicName}
 NICHE/BRAND: ${niche}
-LOCATION HINT: ${city||'urban city'}
-MOOD WORD: ${mood||'cinematic'}
+LOCATION HINT: ${city || 'urban city'}
+MOOD WORD: ${mood || 'cinematic'}
 PLATFORM: ${plat}
+CLIP DURATION: ${minDur ? minDur+'s minimum' : 'any'} ${maxDur ? 'up to '+maxDur+'s' : ''}
 
-Generate ONE specific cinematic scenario — a single place/moment that fits this aesthetic perfectly.
-Then generate 4 DIFFERENT ultra-specific Pexels search queries to find clips for this scenario.
-Each query must approach the same scenario from a different visual angle so we get variety to choose from.
+Generate ONE specific cinematic scenario — a single place/moment.
+Then generate 6 DIFFERENT ultra-specific search queries for this scenario.
+Each query approaches the same place from a different angle, element, or composition.
 
 Return ONLY this JSON:
 {
-  "scenarioTitle":  "3-5 word evocative title of the scenario (e.g. 'Neon Rain Empty Street')",
-  "scenarioDesc":   "2 sentences — what is happening in this clip, what does the viewer feel",
-  "color":          "color grade description",
-  "light":          "lighting description",
-  "motion":         "camera motion",
-  "lens":           "shot type",
-  "caption":        "1-2 line Instagram caption — short, poetic, no emojis overload. Max 3 hashtags.",
-  "captionAlt":     "alternative caption option",
-  "capcut":         "One specific CapCut tip: color grade, speed ramp, or effect to apply",
+  "scenarioTitle": "3-5 word evocative title (e.g. 'Neon Rain Empty Street')",
+  "scenarioDesc":  "2 sentences — what the viewer sees and feels",
+  "color":         "color grade",
+  "light":         "lighting",
+  "motion":        "camera motion",
+  "lens":          "shot type",
+  "caption":       "Instagram caption — short, poetic. Max 3 hashtags.",
+  "captionAlt":    "alternative caption",
+  "capcut":        "One CapCut tip: speed ramp, color grade, or effect",
   "queries": [
-    "ultra specific query 1 — based on '${aes.searchBase}'",
-    "ultra specific query 2 — different angle of same scenario",
-    "ultra specific query 3 — different element of same scenario",
-    "ultra specific query 4 — wider or tighter version"
+    "ultra specific query 1",
+    "ultra specific query 2 — different angle",
+    "ultra specific query 3 — different element",
+    "ultra specific query 4 — wider shot",
+    "ultra specific query 5 — closer detail",
+    "ultra specific query 6 — mood/atmosphere focus"
   ]
 }
 
-Query rules:
-- All 4 must relate to the SAME scenario/place
-- Each must feel different (different camera angle, element, or composition)
-- Ultra specific — describe the exact visual (NOT "person walking at night")
-- Based on the ${aes.name} aesthetic keywords: ${aes.searchBase}${city?' in '+city:''}${mood?' '+mood+' mood':''}`);
+Rules:
+- All 6 queries relate to the SAME scenario
+- Ultra specific — never generic (not 'person walking at night' or 'city street')
+- Based on: ${aes.searchBase}${city ? ' ' + city : ''}${mood ? ' ' + mood : ''}`);
 
     clearInterval(stmr);
 
-    // ── Step 2: Search Pexels with all 4 queries in parallel
-    const queries = data.queries||[];
+    // ── Step 2: Search all queries in parallel ─────────────
+    const queries = data.queries || [];
     const searches = await Promise.all(
-      queries.map((q,i) => searchPexels(q, Math.floor(Math.random()*4)+1).catch(()=>[]))
+      queries.map(q => searchVideos(q, minDur, maxDur).catch(() => []))
     );
 
-    // Flatten + deduplicate + score
+    // Flatten + deduplicate
     const seen = new Set();
-    let allClips = searches.flat().filter(v=>{
-      if(!v.file||seen.has(v.id)) return false;
+    let allClips = searches.flat().filter(v => {
+      if (!v.file || seen.has(v.id)) return false;
       seen.add(v.id); return true;
     });
 
-    // Sort by score, take top 4
-    allClips = allClips.sort((a,b)=>scoreClip(b)-scoreClip(a)).slice(0,4);
-
-    // If we got fewer than 4, pad with a broader search
-    if(allClips.length<4){
-      const extra = await searchPexels(aes.searchBase+(city?' '+city:''), 1).catch(()=>[]);
-      extra.forEach(v=>{ if(!seen.has(v.id)&&v.file){ seen.add(v.id); allClips.push(v); } });
-      allClips = allClips.slice(0,4);
+    // If still not enough, broaden with fallback searches
+    if (allClips.length < clipCount) {
+      const fallbacks = [
+        aes.searchBase + (city ? ' ' + city : ''),
+        aes.searchBase + ' slow motion',
+        topicName.toLowerCase() + ' ' + aes.searchBase,
+      ];
+      for (const fb of fallbacks) {
+        if (allClips.length >= clipCount) break;
+        const extra = await searchVideos(fb, minDur, maxDur).catch(() => []);
+        extra.filter(v => v.file && !seen.has(v.id)).forEach(v => {
+          seen.add(v.id); allClips.push(v);
+        });
+      }
     }
 
-    // ── Step 3: Render ────────────────────────────────────
-    renderResult(data, allClips, aes);
+    // Score and slice to requested count
+    allClips = allClips
+      .sort((a, b) => scoreClip(b, minDur, maxDur) - scoreClip(a, minDur, maxDur))
+      .slice(0, clipCount);
 
-  } catch(e){
+    renderResult(data, allClips, aes, minDur, maxDur);
+
+  } catch(e) {
     clearInterval(stmr);
     console.error(e);
-    showErr(e.message||'Something went wrong');
-    document.getElementById('output').innerHTML='';
+    showErr(e.message || 'Something went wrong');
+    document.getElementById('output').innerHTML = '';
   } finally {
-    document.getElementById('gbtn').disabled=false;
+    document.getElementById('gbtn').disabled = false;
   }
 }
 
+// ── Score clip ─────────────────────────────────────────────
+function scoreClip(v, minDur, maxDur) {
+  let s = 0;
+  const d = v.duration || 0;
+  // Duration — highest weight
+  if (minDur && maxDur && d >= minDur && d <= maxDur) s += 10;
+  else if (minDur && d >= minDur) s += 6;
+  else if (maxDur && d <= maxDur) s += 4;
+  else if (d >= 30 && d <= 60) s += 5;  // default sweet spot
+  else if (d < 10) s -= 4;
+  // Quality
+  if (v.fileWidth >= 3840) s += 5;
+  else if (v.fileWidth >= 1920) s += 3;
+  else if (v.fileWidth >= 1280) s += 1;
+  // Portrait
+  if (v.h > v.w) s += 3;
+  // Has file
+  if (v.file) s += 2;
+  return s;
+}
+
 // ── RENDER ─────────────────────────────────────────────────
-function renderResult(data, clips, aes){
+function renderResult(data, clips, aes, minDur, maxDur){
   const out = document.getElementById('output');
 
+  const many = clips.length > 4;
   const clipsHTML = clips.length ? clips.map((v,i)=>`
     <div class="clip-card" id="clip${i}" onclick="selectClip(${i})">
       <div class="clip-thumb">
@@ -511,6 +581,7 @@ function renderResult(data, clips, aes){
           <div class="clip-play" onclick="toggleVid(event,${i})">▶</div>
         </div>
         <div class="clip-num">${i+1}</div>
+        <span class="src-chip ${v.source||'Pexels'}">${v.source||'Pexels'}</span>
         <div class="selected-badge">SELECTED</div>
       </div>
       <div class="clip-info">
@@ -519,7 +590,7 @@ function renderResult(data, clips, aes){
           <span>📐 ${v.h>v.w?'9:16 ✓':'16:9'}</span>
           <span class="q-badge ${(v.quality||"").startsWith("4K")?"uhd":(v.quality||"").startsWith("HD")?"hd":"sd"}">${v.quality||"SD"}</span>
         </div>
-        <div class="clip-ph">📸 ${v.photographer||'Pexels'} · ${v.fileWidth||v.w||"?"}px wide</div>
+        <div class="clip-ph">📸 ${v.photographer||'Pexels'} · ${v.fileWidth||v.w||"?"}px</div>
       </div>
     </div>`).join('') : `<div style="padding:20px;color:var(--muted);font-size:12px;">
       No clips found. Try a different aesthetic or topic.
@@ -552,10 +623,10 @@ function renderResult(data, clips, aes){
       </div>
 
       <div class="clips-label">
-        <span>Pick Your Clip — 4 Options</span>
-        <span class="clips-count">${clips.length} clips found</span>
+        <span>Pick Your Clip — ${clips.length} Options ${minDur||maxDur ? '· '+[minDur&&minDur+'s min',maxDur&&'up to '+maxDur+'s'].filter(Boolean).join(' ') : ''}</span>
+        <span class="clips-count">${clips.length} found</span>
       </div>
-      <div class="clips-grid">${clipsHTML}</div>
+      <div class="clips-grid ${many?'many':''}">${clipsHTML}</div>
 
       <div class="dl-section" id="dlSection">
         <button class="dl-btn" id="dlBtn" onclick="downloadSelected()" disabled>
